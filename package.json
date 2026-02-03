@@ -1,6 +1,6 @@
 {
   "name": "nexus-desktop",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "NEXUS - Orbital Communication Platform",
   "main": "main.js",
   "author": "NEXUS Team",
@@ -12,7 +12,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "build:win": "electron-builder --win --publish never",
+    "build": "electron-builder --win --publish never",
     "build:installer": "electron-builder --win --config.win.target=nsis --publish never",
     "build:portable": "electron-builder --win --config.win.target=portable --publish never",
     "build:mac": "electron-builder --mac --publish never",
@@ -45,14 +45,10 @@
         {
           "target": "nsis",
           "arch": ["x64"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64"]
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "${productName}-${target}-${version}.${ext}",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
       "publisherName": "NEXUS Team"
     },
     "nsis": {
