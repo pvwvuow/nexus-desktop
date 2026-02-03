@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS // Access</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#030305">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-void: #030305;
+            --glass: rgba(255,255,255,0.025);
+            --glass-border: rgba(255,255,255,0.06);
+            --glass-highlight: rgba(255,255,255,0.12);
+            --text-bright: rgba(255,255,255,0.95);
+            --text-dim: rgba(255,255,255,0.4);
+            --text-ghost: rgba(255,255,255,0.15);
+            --accent: #6366f1;
+            --accent-glow: rgba(99,102,241,0.4);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-void);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.06), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.06), transparent 25%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-bright);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🌟 STARS BACKGROUND */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.8; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🎯 CURSOR GLOW */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        #cursor-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(200, 180, 200, 0.08) 0%, rgba(180, 160, 180, 0.05) 30%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 2;
+            mix-blend-mode: screen;
+            filter: blur(40px);
+            transition: opacity 0.3s;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🪟 LOGIN CARD */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .login-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                inset 0 1px 0 var(--glass-highlight), 
+                0 25px 50px rgba(0,0,0,0.5),
+                0 0 100px rgba(99,102,241,0.1);
+            animation: cardEntry 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes cardEntry {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🎨 LOGO */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 10px 30px rgba(99,102,241,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-bright), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo p {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 📑 TABS */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            background: rgba(0,0,0,0.3);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tab:hover {
+            color: var(--text-bright);
+        }
+
+        .tab:hover::before {
+            opacity: 1;
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-bright);
+            box-shadow: 
+                0 4px 12px rgba(99,102,241,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 📝 FORMS */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .form-view {
+            display: none;
+            animation: formFadeIn 0.3s ease-out;
+        }
+
+        .form-view.active {
+            display: block;
+        }
+
+        @keyframes formFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: var(--text-bright);
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent);
+            background: rgba(99,102,241,0.05);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🔘 BUTTON */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(99,102,241,0.3);
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99,102,241,0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover {
+            box-shadow: 0 0 20px rgba(99,102,241,0.3);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 💬 MESSAGE BOX */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            animation: messageSlide 0.3s ease-out;
+            font-weight: 500;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.error {
+            background: rgba(239,68,68,0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239,68,68,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .message.error::before {
+            content: '⚠️';
+            font-size: 16px;
+        }
+
+        .message.success {
+            background: rgba(34,197,94,0.15);
+            color: var(--success);
+            border: 1px solid rgba(34,197,94,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .message.success::before {
+            content: '✓';
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .message.info {
+            background: rgba(99,102,241,0.15);
+            color: var(--accent);
+            border: 1px solid rgba(99,102,241,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .message.info::before {
+            content: 'ℹ';
+            font-size: 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* ⏳ LOADING */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .btn.loading {
+            pointer-events: none;
+        }
+
+        .btn.loading span {
+            opacity: 0;
+        }
+
+        .btn.loading .spinner {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 📱 RESPONSIVE */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        @media (max-width: 480px) {
+            .login-card {
+                max-width: 90%;
+                padding: 32px 24px;
+            }
+
+            .logo h1 {
+                font-size: 28px;
+            }
+
+            .logo-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 28px;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🔗 FOOTER LINK */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .footer-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .footer-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--text-bright);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* 🎭 PASSWORD TOGGLE */
+        /* ═══════════════════════════════════════════════════════════ */
+        
+        .input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+            padding: 4px;
+        }
+
+        .password-toggle:hover {
+            color: var(--text-bright);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Stars -->
+    <div id="stars"></div>
+
+    <!-- Cursor Glow -->
+    <div id="cursor-glow"></div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <div class="logo">
+            <div class="logo-icon">🌌</div>
+            <h1>NEXUS</h1>
+            <p>Access Required</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">Login</button>
+            <button class="tab" onclick="switchTab('register')">Sign Up</button>
+        </div>
+
+        <div id="messageBox" class="message"></div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="form-view active">
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input 
+                        type="text" 
+                        id="loginUser" 
+                        class="input-field" 
+                        placeholder="Enter username" 
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            id="loginPass" 
+                            class="input-field" 
+                            placeholder="••••••••" 
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('loginPass', this)">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn" class="btn">
+                    <span>Enter NEXUS</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="form-view">
+            <form onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input 
+                        type="text" 
+                        id="regUser" 
+                        class="input-field" 
+                        placeholder="Choose a username" 
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="20"
+                        required
+                    >
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input 
+                        type="email" 
+                        id="regEmail" 
+                        class="input-field" 
+                        placeholder="your@email.com" 
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            id="regPass" 
+                            class="input-field" 
+                            placeholder="••••••••" 
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('regPass', this)">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" id="regBtn" class="btn">
+                    <span>Create Account</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <div class="footer-link">
+            <a href="https://github.com/yourusername/nexus" target="_blank">About NEXUS</a>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // 🔧 CONFIGURATION
+        // ═══════════════════════════════════════════════════════════
+
+        const API_URL = 'https://callme.f5f102.site/api';
+
+        // ═══════════════════════════════════════════════════════════
+        // 🌟 STARS ANIMATION
+        // ═══════════════════════════════════════════════════════════
+
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 2 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎯 CURSOR GLOW
+        // ═══════════════════════════════════════════════════════════
+
+        const cursor = document.getElementById('cursor-glow');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+
+        animateCursor();
+
+        // ═══════════════════════════════════════════════════════════
+        // 🔄 TAB SWITCHING
+        // ═══════════════════════════════════════════════════════════
+
+        function switchTab(mode) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Switch forms
+            document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+            document.getElementById(mode + 'Form').classList.add('active');
+            
+            // Clear message
+            hideMessage();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 💬 MESSAGE HANDLING
+        // ═══════════════════════════════════════════════════════════
+
+        function showMessage(type, text) {
+            const box = document.getElementById('messageBox');
+            box.textContent = text;
+            box.className = `message ${type}`;
+        }
+
+        function hideMessage() {
+            const box = document.getElementById('messageBox');
+            box.className = 'message';
+            box.style.display = 'none';
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 👁️ PASSWORD TOGGLE
+        // ═══════════════════════════════════════════════════════════
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 🔐 LOGIN HANDLER
+        // ═══════════════════════════════════════════════════════════
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('loginBtn');
+            const username = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value;
+
+            if (!username || !password) {
+                showMessage('error', 'Please fill all fields');
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            hideMessage();
+            
+            try {
+                console.log('🔐 Attempting login...');
+                
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                
+                console.log('📥 Login response:', res.status, data);
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Login failed');
+                }
+
+                // ✅ Store tokens
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                console.log('✅ Login successful:', data.user.username);
+
+                showMessage('success', '✨ Access Granted! Redirecting...');
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = 'app.html';
+                }, 1000);
+
+            } catch (err) {
+                console.error('❌ Login error:', err);
+                showMessage('error', err.message || 'Access Denied');
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ✍️ REGISTER HANDLER
+        // ═══════════════════════════════════════════════════════════
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('regBtn');
+            const username = document.getElementById('regUser').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPass').value;
+
+            // Validation
+            if (!username || !email || !password) {
+                showMessage('error', 'Please fill all fields');
+                return;
+            }
+
+            if (username.length < 3) {
+                showMessage('error', 'Username must be at least 3 characters');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('error', 'Password must be at least 6 characters');
+                return;
+            }
+
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                showMessage('error', 'Please enter a valid email');
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            hideMessage();
+
+            try {
+                console.log('📝 Attempting registration...');
+                
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+                
+                console.log('📥 Register response:', res.status, data);
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+
+                // ✅ Store tokens
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                console.log('✅ Registration successful:', data.user.username);
+
+                showMessage('success', '🎉 Account Created! Redirecting...');
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = 'app.html';
+                }, 1200);
+
+            } catch (err) {
+                console.error('❌ Registration error:', err);
+                showMessage('error', err.message || 'Creation Failed');
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 🔍 AUTO-REDIRECT IF ALREADY LOGGED IN
+        // ═══════════════════════════════════════════════════════════
+
+        async function checkExistingSession() {
+            const accessToken = localStorage.getItem('accessToken');
+            
+            if (!accessToken) {
+                console.log('ℹ️ No existing session found');
+                return;
+            }
+
+            console.log('🔍 Checking existing session...');
+            showMessage('info', 'Checking session...');
+
+            try {
+                const res = await fetch(`${API_URL}/users/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+                    console.log('✅ Valid session found for:', user.username);
+                    showMessage('success', 'Session found! Redirecting...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'app.html';
+                    }, 800);
+                } else {
+                    console.log('⚠️ Session expired, clearing...');
+                    localStorage.clear();
+                    hideMessage();
+                }
+            } catch (error) {
+                console.error('❌ Session check failed:', error);
+                localStorage.clear();
+                hideMessage();
+            }
+        }
+
+        // Check session on page load
+        checkExistingSession();
+
+        // ═══════════════════════════════════════════════════════════
+        // ⌨️ KEYBOARD SHORTCUTS
+        // ═══════════════════════════════════════════════════════════
+
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K to switch tab
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const currentTab = document.querySelector('.tab.active');
+                const isLogin = currentTab.textContent.includes('Login');
+                const tabs = document.querySelectorAll('.tab');
+                tabs[isLogin ? 1 : 0].click();
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎨 FORM ANIMATION ON FOCUS
+        // ═══════════════════════════════════════════════════════════
+
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.style.transform = 'scale(1.02)';
+                input.parentElement.style.transition = 'transform 0.2s';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        console.log('🌌 NEXUS Login Ready');
+        console.log('🔗 API:', API_URL);
+    </script>
+</body>
+</html>
