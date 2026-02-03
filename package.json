@@ -1,14 +1,28 @@
 {
   "name": "nexus-desktop",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "NEXUS - Orbital Communication Platform",
   "main": "main.js",
-  "author": "NEXUS Team",
+  "author": {
+    "name": "NEXUS Team",
+    "email": "support@nexus.app"
+  },
   "license": "MIT",
+  "homepage": "https://github.com/pvwvuow/nexus-desktop#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/pvwvuow/nexus-desktop.git"
   },
+  "bugs": {
+    "url": "https://github.com/pvwvuow/nexus-desktop/issues"
+  },
+  "keywords": [
+    "electron",
+    "chat",
+    "communication",
+    "nexus",
+    "desktop"
+  ],
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
@@ -18,7 +32,11 @@
     "build:portable": "electron-builder --win --config.win.target=portable --publish never",
     "build:mac": "electron-builder --mac --publish never",
     "build:linux": "electron-builder --linux --publish never",
-    "clean": "rm -rf dist node_modules && npm install"
+    "build:all": "electron-builder --win --mac --linux --publish never",
+    "clean": "rimraf dist",
+    "clean:all": "rimraf dist node_modules package-lock.json",
+    "reinstall": "npm run clean:all && npm install",
+    "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
     "electron-store": "^8.1.0",
@@ -26,11 +44,17 @@
   },
   "devDependencies": {
     "electron": "^28.1.0",
-    "electron-builder": "^24.9.1"
+    "electron-builder": "^24.9.1",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "build": {
     "appId": "com.nexus.desktop",
     "productName": "NEXUS",
+    "copyright": "Copyright © 2026 NEXUS Team",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -39,8 +63,27 @@
       "main.js",
       "preload.js",
       "src/**/*",
-      "build/icon.*"
+      "build/icon.*",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!node_modules/*.d.ts",
+      "!node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
+    "extraResources": [
+      {
+        "from": "build/",
+        "to": "build/",
+        "filter": ["**/*"]
+      }
+    ],
+    "compression": "maximum",
     "win": {
       "target": [
         {
@@ -50,7 +93,9 @@
       ],
       "icon": "build/icon.ico",
       "artifactName": "${productName}-Setup-${version}.${ext}",
-      "publisherName": "NEXUS Team"
+      "publisherName": "NEXUS Team",
+      "requestedExecutionLevel": "asInvoker",
+      "verifyUpdateCodeSignature": false
     },
     "nsis": {
       "oneClick": false,
@@ -61,26 +106,105 @@
       "shortcutName": "NEXUS",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
+      "installerHeader": "build/installerHeader.bmp",
       "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp",
+      "installerHeaderIcon": "build/icon.ico",
       "displayLanguageSelector": false,
+      "installerLanguages": ["en_US", "fa_IR"],
+      "language": "1033",
+      "multiLanguageInstaller": false,
+      "packElevateHelper": true,
+      "perMachine": false,
       "deleteAppDataOnUninstall": true,
       "runAfterFinish": true,
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      "menuCategory": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "guid": "a3c5d7e9-1b2c-4f5a-8d9e-7c6b5a4f3e2d",
+      "warningsAsErrors": false
     },
     "portable": {
-      "artifactName": "${productName}-Portable-${version}.${ext}"
+      "artifactName": "${productName}-Portable-${version}.${ext}",
+      "requestExecutionLevel": "user"
     },
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ],
       "icon": "build/icon.icns",
       "category": "public.app-category.social-networking",
-      "artifactName": "${productName}-${version}-mac.${ext}"
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "type": "distribution"
+    },
+    "dmg": {
+      "background": "build/dmg-background.png",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 380,
+          "y": 180,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
     },
     "linux": {
-      "target": ["AppImage", "deb"],
-      "icon": "build/icon.png",
-      "category": "Network",
-      "artifactName": "${productName}-${version}-linux.${ext}"
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        },
+        {
+          "target": "rpm",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icons/",
+      "category": "Network;InstantMessaging;",
+      "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+      "synopsis": "Orbital Communication Platform",
+      "description": "NEXUS Desktop - A modern communication platform for seamless messaging and collaboration.",
+      "vendor": "NEXUS Team",
+      "maintainer": "NEXUS Team <support@nexus.app>",
+      "desktop": {
+        "Name": "NEXUS",
+        "Comment": "Orbital Communication Platform",
+        "Categories": "Network;InstantMessaging;",
+        "StartupWMClass": "NEXUS"
+      }
+    },
+    "appImage": {
+      "license": "LICENSE"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "pvwvuow",
+      "repo": "nexus-desktop",
+      "releaseType": "release"
     }
   }
 }

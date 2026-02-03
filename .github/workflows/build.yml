@@ -1,51 +1,243 @@
-name: Build NEXUS Desktop
+name: 🚀 Build NEXUS Desktop
 
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*' ]
+    branches: 
+      - main
+      - develop
+    tags: 
+      - 'v*'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.0.5)'
+        required: false
+        type: string
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  NODE_VERSION: '20'
+  ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+  ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
 
 jobs:
+  # ════════════════════════════════════════════════════════════════
+  # JOB 1: Build for Windows
+  # ════════════════════════════════════════════════════════════════
   build-windows:
-    name: Build NEXUS for Windows
+    name: 🪟 Build Windows
     runs-on: windows-latest
     
     steps:
-      - name: Checkout Repository
+      # ────────────────────────────────────────────────────────────
+      # Step 1: Checkout
+      # ────────────────────────────────────────────────────────────
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Setup Node.js 18
+      # ────────────────────────────────────────────────────────────
+      # Step 2: Setup Node.js
+      # ────────────────────────────────────────────────────────────
+      - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       
-      - name: Install Dependencies
-        run: npm ci
+      # ────────────────────────────────────────────────────────────
+      # Step 3: Cache Electron
+      # ────────────────────────────────────────────────────────────
+      - name: 💾 Cache Electron
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ELECTRON_CACHE }}
+            ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ runner.os }}-electron-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-
       
-      - name: Build Windows Installer
+      # ────────────────────────────────────────────────────────────
+      # Step 4: Install Dependencies
+      # ────────────────────────────────────────────────────────────
+      - name: 📦 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      # ────────────────────────────────────────────────────────────
+      # Step 5: Get Version
+      # ────────────────────────────────────────────────────────────
+      - name: 🏷️ Get Version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          elif [[ "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION=${{ github.event.inputs.version }}
+          else
+            VERSION=$(node -p "require('./package.json').version")
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📌 Building version: $VERSION"
+      
+      # ────────────────────────────────────────────────────────────
+      # Step 6: Build Windows Installer
+      # ────────────────────────────────────────────────────────────
+      - name: 🔨 Build Windows Installer
         run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_ENV: production
       
-      - name: Upload Build Artifacts
+      # ────────────────────────────────────────────────────────────
+      # Step 7: List Build Output
+      # ────────────────────────────────────────────────────────────
+      - name: 📋 List Build Output
+        shell: bash
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📦 Build Output:"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          ls -lh dist/
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      
+      # ────────────────────────────────────────────────────────────
+      # Step 8: Upload Artifacts
+      # ────────────────────────────────────────────────────────────
+      - name: ⬆️ Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: NEXUS-Windows-Build-${{ github.run_number }}
+          name: NEXUS-Windows-v${{ steps.version.outputs.version }}-Build${{ github.run_number }}
           path: |
-            dist/*.exe
+            dist/NEXUS-Setup-*.exe
             dist/*.blockmap
+            dist/latest.yml
           retention-days: 30
           if-no-files-found: error
+          compression-level: 6
       
-      - name: Create GitHub Release
+      # ────────────────────────────────────────────────────────────
+      # Step 9: Calculate Checksums
+      # ────────────────────────────────────────────────────────────
+      - name: 🔐 Calculate Checksums
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          cd dist
+          for file in NEXUS-Setup-*.exe; do
+            if [ -f "$file" ]; then
+              sha256sum "$file" > "$file.sha256"
+              md5sum "$file" > "$file.md5"
+              echo "✅ Checksums created for: $file"
+            fi
+          done
+      
+      # ────────────────────────────────────────────────────────────
+      # Step 10: Create GitHub Release
+      # ────────────────────────────────────────────────────────────
+      - name: 🎉 Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/NEXUS-Setup-*.exe
+          files: |
+            dist/NEXUS-Setup-*.exe
+            dist/NEXUS-Setup-*.exe.sha256
+            dist/NEXUS-Setup-*.exe.md5
+            dist/*.blockmap
+            dist/latest.yml
           draft: false
           prerelease: false
           generate_release_notes: true
           fail_on_unmatched_files: false
+          name: NEXUS v${{ steps.version.outputs.version }}
+          body: |
+            ## 🚀 NEXUS Desktop v${{ steps.version.outputs.version }}
+            
+            ### 📥 دانلود
+            
+            **Windows (64-bit):**
+            - [`NEXUS-Setup-${{ steps.version.outputs.version }}.exe`](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/NEXUS-Setup-${{ steps.version.outputs.version }}.exe)
+            
+            ### 📋 نیازمندی‌های سیستم
+            - **سیستم عامل:** Windows 10/11 (64-bit)
+            - **معماری:** x64
+            - **رم:** حداقل 4GB
+            - **فضای دیسک:** 200MB
+            
+            ### 🔧 نصب
+            1. دانلود فایل `NEXUS-Setup-${{ steps.version.outputs.version }}.exe`
+            2. اجرای فایل Setup
+            3. دنبال کردن مراحل نصب
+            4. لذت ببرید! 🎉
+            
+            ### 🔄 آپدیت
+            اگر نسخه قبلی نصب دارید، برنامه به صورت خودکار آپدیت خواهد شد.
+            
+            ### 🔐 بررسی یکپارچگی فایل
+            ```bash
+            # SHA-256
+            sha256sum NEXUS-Setup-${{ steps.version.outputs.version }}.exe
+            
+            # MD5
+            md5sum NEXUS-Setup-${{ steps.version.outputs.version }}.exe
+            ```
+            
+            ### 🐛 گزارش مشکلات
+            اگر مشکلی مشاهده کردید، لطفاً [اینجا](https://github.com/${{ github.repository }}/issues) گزارش دهید.
+            
+            ---
+            
+            **ساخته شده با:** Electron v28 | Node.js v${{ env.NODE_VERSION }}  
+            **تاریخ انتشار:** ${{ github.event.head_commit.timestamp }}  
+            **Commit:** [`${{ github.sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # ────────────────────────────────────────────────────────────
+      # Step 11: Comment on PR (if applicable)
+      # ────────────────────────────────────────────────────────────
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ✅ Build Successful!\n\n**Version:** v${{ steps.version.outputs.version }}\n**Artifact:** NEXUS-Windows-v${{ steps.version.outputs.version }}-Build${{ github.run_number }}\n\n[📦 Download Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+            })
+
+  # ════════════════════════════════════════════════════════════════
+  # JOB 2: Notify on Success/Failure
+  # ════════════════════════════════════════════════════════════════
+  notify:
+    name: 📢 Notify Build Status
+    runs-on: ubuntu-latest
+    needs: [build-windows]
+    if: always()
+    
+    steps:
+      - name: ✅ Build Succeeded
+        if: ${{ needs.build-windows.result == 'success' }}
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Build Completed Successfully!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      
+      - name: ❌ Build Failed
+        if: ${{ needs.build-windows.result != 'success' }}
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ Build Failed!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          exit 1
