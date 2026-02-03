@@ -42,8 +42,8 @@ if (!gotTheLock) {
 
 function createSplash() {
     splashWindow = new BrowserWindow({
-        width: 400,
-        height: 300,
+        width: 500,
+        height: 350,
         transparent: true,
         frame: false,
         alwaysOnTop: true,
@@ -63,43 +63,55 @@ function createSplash() {
                     align-items: center;
                     justify-content: center;
                     height: 100vh;
-                    font-family: -apple-system, sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 }
                 .splash {
                     text-align: center;
-                    background: rgba(3,3,5,0.95);
+                    background: linear-gradient(135deg, rgba(26,26,46,0.98), rgba(22,33,62,0.98));
                     backdrop-filter: blur(40px);
-                    padding: 40px;
-                    border-radius: 24px;
-                    border: 1px solid rgba(255,255,255,0.1);
-                    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+                    padding: 50px 60px;
+                    border-radius: 28px;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
                 }
                 .logo {
-                    width: 80px;
-                    height: 80px;
-                    margin: 0 auto 20px;
-                    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                    width: 100px;
+                    height: 100px;
+                    margin: 0 auto 24px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 40px;
-                    animation: pulse 2s infinite;
+                    font-size: 50px;
+                    animation: pulse 2s ease-in-out infinite;
+                    box-shadow: 0 10px 30px rgba(102,126,234,0.4);
                 }
                 @keyframes pulse {
-                    0%, 100% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
+                    0%, 100% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.08); opacity: 0.9; }
                 }
-                h1 { color: white; font-size: 32px; margin-bottom: 8px; }
-                p { color: rgba(255,255,255,0.5); font-size: 12px; letter-spacing: 2px; }
+                h1 { 
+                    color: white; 
+                    font-size: 42px; 
+                    font-weight: 700;
+                    margin-bottom: 12px;
+                    letter-spacing: 2px;
+                }
+                p { 
+                    color: rgba(255,255,255,0.6); 
+                    font-size: 13px; 
+                    letter-spacing: 3px; 
+                    text-transform: uppercase;
+                }
                 .spinner {
-                    width: 24px;
-                    height: 24px;
+                    width: 28px;
+                    height: 28px;
                     border: 3px solid rgba(255,255,255,0.1);
-                    border-top-color: #6366f1;
+                    border-top-color: #667eea;
                     border-radius: 50%;
                     animation: spin 0.8s linear infinite;
-                    margin: 20px auto 0;
+                    margin: 28px auto 0;
                 }
                 @keyframes spin { to { transform: rotate(360deg); } }
             </style>
@@ -108,7 +120,7 @@ function createSplash() {
             <div class="splash">
                 <div class="logo">🌌</div>
                 <h1>NEXUS</h1>
-                <p>INITIALIZING...</p>
+                <p>Initializing...</p>
                 <div class="spinner"></div>
             </div>
         </body>
@@ -140,7 +152,7 @@ function createWindow() {
         minHeight: 700,
         frame: false,
         transparent: false,
-        backgroundColor: '#030305',
+        backgroundColor: '#1a1a2e',
         show: false,
         webPreferences: {
             nodeIntegration: false,
@@ -173,15 +185,17 @@ function createWindow() {
     mainWindow.on('resize', saveState);
     mainWindow.on('move', saveState);
 
-    // Load page
+    // Load appropriate page
     const accessToken = store.get('accessToken');
     if (accessToken) {
         mainWindow.loadFile(path.join(__dirname, 'src/app.html'));
+        console.log('✅ Loaded app.html (user logged in)');
     } else {
         mainWindow.loadFile(path.join(__dirname, 'src/login.html'));
+        console.log('✅ Loaded login.html (no token)');
     }
 
-    // Show window
+    // Show window after load
     mainWindow.once('ready-to-show', () => {
         if (splashWindow) {
             splashWindow.close();
@@ -198,7 +212,7 @@ function createWindow() {
         }, 100);
     });
 
-    // Minimize to tray
+    // Minimize to tray instead of closing
     mainWindow.on('close', (event) => {
         if (!isQuitting) {
             event.preventDefault();
@@ -210,7 +224,7 @@ function createWindow() {
         mainWindow = null;
     });
 
-    // External links
+    // Open external links in browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url);
         return { action: 'deny' };
@@ -384,18 +398,21 @@ function initAutoUpdater() {
 // ═══════════════════════════════════════════════════════════
 
 function registerShortcuts() {
+    // Show/Hide window
     globalShortcut.register('CommandOrControl+Shift+O', () => {
         if (mainWindow) {
             mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
         }
     });
 
+    // Mute shortcut
     globalShortcut.register('CommandOrControl+Shift+M', () => {
         if (mainWindow) {
             mainWindow.webContents.send('global-shortcut-mute');
         }
     });
 
+    // Deafen shortcut
     globalShortcut.register('CommandOrControl+Shift+D', () => {
         if (mainWindow) {
             mainWindow.webContents.send('global-shortcut-deafen');
@@ -410,7 +427,7 @@ function registerShortcuts() {
 // ═══════════════════════════════════════════════════════════
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🪟 Window Controls (برای titlebar با send)
+// 🪟 Window Controls (برای titlebar)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ipcMain.on('minimize-window', () => {
     if (mainWindow) mainWindow.minimize();
@@ -427,7 +444,26 @@ ipcMain.on('close-window', () => {
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🖥️ App Controls (با invoke)
+// 🔐 Authentication
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ipcMain.on('login-success', () => {
+    if (mainWindow) {
+        mainWindow.loadFile(path.join(__dirname, 'src/app.html'));
+        console.log('✅ User logged in, switched to app.html');
+    }
+});
+
+ipcMain.on('logout', () => {
+    store.delete('accessToken');
+    store.delete('userData');
+    if (mainWindow) {
+        mainWindow.loadFile(path.join(__dirname, 'src/login.html'));
+        console.log('✅ User logged out, switched to login.html');
+    }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🖥️ App Controls
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ipcMain.handle('app.getVersion', () => app.getVersion());
 ipcMain.handle('app.getName', () => app.getName());
@@ -555,7 +591,7 @@ app.whenReady().then(() => {
         createTray();
         initAutoUpdater();
         registerShortcuts();
-    }, 1000);
+    }, 1500);
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
