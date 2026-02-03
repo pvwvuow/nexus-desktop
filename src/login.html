@@ -54,70 +54,72 @@
             user-select: none;
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           🪟 WINDOW CONTROLS (فقط Electron)
-           ═══════════════════════════════════════════════════════════ */
-        
-        .titlebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: transparent;
-            -webkit-app-region: drag;
-            z-index: 1000;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 16px;
-        }
+       /* ═══════════════════════════════════════════════════════════
+   🪟 WINDOW CONTROLS (فقط Electron) - مینیمال و کوچک
+   ═══════════════════════════════════════════════════════════ */
 
-        .titlebar-title {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-family: 'Space Mono', monospace;
-        }
+.titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-app-region: drag;
+    z-index: 1000;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-        .window-controls {
-            display: flex;
-            gap: 8px;
-            -webkit-app-region: no-drag;
-        }
+.titlebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+}
 
-        .window-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            color: var(--text-dim);
-        }
+.window-controls {
+    display: flex;
+    gap: 4px;
+    -webkit-app-region: no-drag;
+}
 
-        .window-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: var(--text-bright);
-            transform: scale(1.05);
-        }
+.window-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0;
+}
 
-        .window-btn.close:hover {
-            background: #ef4444;
-            color: white;
-        }
+.window-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
 
-        .window-btn i {
-            width: 16px;
-            height: 16px;
-        }
+.window-btn.close:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.window-btn i {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5px;
+}
 
         /* ═══════════════════════════════════════════════════════════
            🌌 COSMOS BACKGROUND
@@ -771,30 +773,52 @@
 
         const API_URL = 'https://callme.f5f102.site/api';
 
-        // ═══════════════════════════════════════════════════════════
-        // 🔍 DETECT ENVIRONMENT
-        // ═══════════════════════════════════════════════════════════
+       // ═══════════════════════════════════════════════════════════
+// 🔍 DETECT ENVIRONMENT
+// ═══════════════════════════════════════════════════════════
 
-        const isElectron = typeof window.electron !== 'undefined';
-        
-        if (isElectron) {
-            console.log('🖥️ Running in Electron');
-            document.getElementById('titlebar').style.display = 'flex';
-            
-            document.getElementById('minimizeBtn').addEventListener('click', () => {
-                window.electron.window.minimize();
-            });
-            
-            document.getElementById('maximizeBtn').addEventListener('click', () => {
-                window.electron.window.maximize();
-            });
-            
-            document.getElementById('closeBtn').addEventListener('click', () => {
-                window.electron.window.close();
-            });
-        } else {
-            console.log('🌐 Running in Browser');
-        }
+const isElectron = typeof window.electronAPI !== 'undefined';
+
+if (isElectron) {
+    console.log('🖥️ Running in Electron');
+    
+    // نمایش titlebar
+    const titlebar = document.getElementById('titlebar');
+    titlebar.style.display = 'flex';
+    
+    // اضافه کردن padding به body برای titlebar
+    document.body.style.paddingTop = '32px';
+    
+    // Window Controls
+    const minimizeBtn = document.getElementById('minimizeBtn');
+    const maximizeBtn = document.getElementById('maximizeBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    
+    if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', () => {
+            console.log('🔽 Minimize clicked');
+            window.electronAPI.minimizeWindow();
+        });
+    }
+    
+    if (maximizeBtn) {
+        maximizeBtn.addEventListener('click', () => {
+            console.log('🔲 Maximize clicked');
+            window.electronAPI.maximizeWindow();
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            console.log('❌ Close clicked');
+            window.electronAPI.closeWindow();
+        });
+    }
+    
+    console.log('✅ Window controls initialized');
+} else {
+    console.log('🌐 Running in Browser');
+}
 
         // ═══════════════════════════════════════════════════════════
         // 🎨 INITIALIZE LUCIDE ICONS

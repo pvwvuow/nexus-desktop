@@ -1754,71 +1754,125 @@
                         color: white;
                     }
             
-                    /* ═══════════════════════════════════════════════════════════
-                       Input Container
-                       ═══════════════════════════════════════════════════════════ */
-                    
-                    .input-container {
-                        margin: 0 16px 16px;
-                        background: rgba(0,0,0,0.4);
-                        border-radius: 14px;
-                        border: 1px solid rgba(255,255,255,0.06);
-                        padding: 4px;
-                        transition: border-color 0.2s, box-shadow 0.2s;
-                        flex-shrink: 0;
-                        position: relative;
-                    }
-            
-                    .input-container:focus-within { 
-                        border-color: rgba(99,102,241,0.4);
-                        box-shadow: 0 0 20px rgba(99,102,241,0.1);
-                    }
-            
-                    .input-wrapper {
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        padding: 8px 14px;
-                    }
-            
-                    .input-btn {
-                        width: 34px;
-                        height: 34px;
-                        border-radius: 10px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: var(--text-dim);
-                        cursor: pointer;
-                        transition: all 0.2s;
-                        flex-shrink: 0;
-                    }
-            
-                    .input-btn:hover {
-                        background: rgba(255,255,255,0.08);
-                        color: white;
-                    }
-            
-                    .input-field {
-                        flex: 1;
-                        background: transparent;
-                        border: none;
-                        color: white;
-                        font-size: 16px;
-                        font-family: 'Inter', sans-serif;
-                        outline: none;
-                        min-width: 0;
-                    }
-            
-                    .input-field::placeholder { color: var(--text-ghost); }
-            
-                    .char-count {
-                        font-family: 'Space Mono', monospace;
-                        font-size: 0.6rem;
-                        color: var(--text-ghost);
-                        flex-shrink: 0;
-                    }
-            
+                 /* ═══════════════════════════════════════════════════════════
+   💬 INPUT CONTAINER - با پشتیبانی Textarea
+   ═══════════════════════════════════════════════════════════ */
+
+.input-container {
+    margin: 0 16px 16px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 4px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.input-container:focus-within { 
+    border-color: rgba(99,102,241,0.4);
+    box-shadow: 0 0 20px rgba(99,102,241,0.1);
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: flex-end; /* 🔥 تغییر از center به flex-end */
+    gap: 10px;
+    padding: 8px 14px;
+    min-height: 50px; /* 🔥 حداقل ارتفاع */
+}
+
+.input-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    align-self: flex-end; /* 🔥 چسبیدن به پایین */
+    margin-bottom: 2px; /* 🔥 تنظیم موقعیت */
+}
+
+.input-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   🆕 Textarea Styles
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+#msgInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-family: 'Vazirmatn', -apple-system, sans-serif;
+    outline: none;
+    min-width: 0;
+    resize: none;
+    overflow-y: auto;
+    min-height: 24px; /* 🔥 یک خط */
+    max-height: 150px;
+    line-height: 1.5;
+    padding: 5px 0; /* 🔥 فاصله داخلی */
+    transition: height 0.1s ease;
+}
+
+#msgInput::placeholder { 
+    color: var(--text-ghost); 
+}
+
+/* Scrollbar برای textarea */
+#msgInput::-webkit-scrollbar {
+    width: 4px;
+}
+
+#msgInput::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#msgInput::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+}
+
+#msgInput::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.char-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-ghost);
+    flex-shrink: 0;
+    align-self: flex-end; /* 🔥 چسبیدن به پایین */
+    margin-bottom: 6px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   📱 Responsive
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 600px) {
+    .input-wrapper {
+        padding: 6px 10px;
+        min-height: 44px;
+    }
+    
+    #msgInput {
+        font-size: 16px; /* جلوگیری از zoom در iOS */
+    }
+    
+    .char-count {
+        display: none; /* مخفی در موبایل */
+    }
+}
                     /* ═══════════════════════════════════════════════════════════
                        🎨 Emoji Picker - شیشه‌ای مینیمال
                        ═══════════════════════════════════════════════════════════ */
@@ -8169,6 +8223,118 @@
         gap: 4px;
     }
 }
+/* Voice Channel Users in Sidebar */
+.panel-voice-users {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-left: 26px;
+    padding: 6px 0;
+}
+
+.panel-voice-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.panel-voice-user:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.panel-voice-user-av {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.panel-voice-user-av img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.voice-user-name {
+    font-size: 0.75rem;
+    color: var(--text);
+}
+/* ═══════════════════════════════════════════════════════════
+   🪟 WINDOW CONTROLS (فقط Electron)
+   ═══════════════════════════════════════════════════════════ */
+
+.titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-app-region: drag;
+    z-index: 1000;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.titlebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+}
+
+.window-controls {
+    display: flex;
+    gap: 4px;
+    -webkit-app-region: no-drag;
+}
+
+.window-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0;
+}
+
+.window-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.window-btn.close:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.window-btn i {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5px;
+}
                 </style>
                 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
             </head>
@@ -9008,7 +9174,62 @@
                         </div>
                     </div>
                 </div>
-            
+            <!-- 🌍 Create New World Modal -->
+<div class="modal" id="createWorldModal">
+    <div class="modal-container" style="max-width: 420px;">
+        <div class="modal-header">
+            <span class="modal-title">🌍 Create New World</span>
+            <div class="modal-close" onclick="closeModal('createWorldModal')">
+                <i data-lucide="x" style="width:20px;height:20px;"></i>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">World Name</label>
+            <input type="text" class="form-input" id="newWorldName" placeholder="e.g., Gaming Server">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Description (Optional)</label>
+            <textarea class="form-textarea" id="newWorldDesc" placeholder="Welcome to..." style="min-height:80px;"></textarea>
+        </div>
+        
+        <div class="btn-row">
+            <button class="btn btn-secondary" onclick="closeModal('createWorldModal')">Cancel</button>
+            <button class="btn" id="submitCreateWorldBtn">
+                <i data-lucide="plus" style="width:18px;height:18px;"></i>
+                Create
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ✏️ Edit Channel Modal -->
+<div class="modal" id="editChannelModal">
+    <div class="modal-container" style="max-width: 400px;">
+        <div class="modal-header">
+            <span class="modal-title">✏️ Edit Channel</span>
+            <div class="modal-close" onclick="closeModal('editChannelModal')">
+                <i data-lucide="x" style="width:20px;height:20px;"></i>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Channel Name</label>
+            <input type="text" class="form-input" id="editChannelName">
+        </div>
+        
+        <div class="form-group" id="editTopicGroup">
+            <label class="form-label">Topic</label>
+            <input type="text" class="form-input" id="editChannelTopic">
+        </div>
+        
+        <div class="btn-row">
+            <button class="btn btn-secondary" onclick="closeModal('editChannelModal')">Cancel</button>
+            <button class="btn" id="submitEditChannelBtn">Save</button>
+        </div>
+    </div>
+</div>
                 <!-- ═══════════════════════════════════════════════════════════
                      🆕 Create Story Modal - Enhanced
                      ═══════════════════════════════════════════════════════════ -->
@@ -9628,23 +9849,26 @@
                             </div>
                         </div>
                         
-                        <div class="input-wrapper">
-                            <div class="input-btn" id="attachBtn" title="Attach File">
-                                <i data-lucide="plus" style="width:18px;height:18px;"></i>
-                            </div>
-                            <input type="text" class="input-field" placeholder="Message #general" id="msgInput" maxlength="2000">
-                            <span class="char-count" id="charCount">0/2000</span>
-                            <div class="input-btn" id="emojiBtn" title="Emoji">
-                                <i data-lucide="smile" style="width:18px;height:18px;"></i>
-                            </div>
-                            <div class="input-btn" id="sendBtn" title="Send">
-                                <i data-lucide="send" style="width:18px;height:18px;"></i>
+                            <div class="input-wrapper">
+                                <div class="input-btn" id="attachBtn" title="Attach File">
+                                    <i data-lucide="plus" style="width:18px;height:18px;"></i>
+                                </div>
+                             <textarea id="msgInput" 
+              placeholder="Type a message... (Shift+Enter for new line)" 
+              rows="1"
+              style="resize: none; overflow-y: auto; min-height: 40px; max-height: 150px;"></textarea>
+                                <span class="char-count" id="charCount">0/2000</span>
+                                <div class="input-btn" id="emojiBtn" title="Emoji">
+                                    <i data-lucide="smile" style="width:18px;height:18px;"></i>
+                                </div>
+                                <div class="input-btn" id="sendBtn" title="Send">
+                                    <i data-lucide="send" style="width:18px;height:18px;"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*">
-                    
-                </main>
+                        <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*">
+                        
+                    </main>
             
             <!-- DM Profile Panel -->
 <aside class="glass dm-profile-panel" id="dmProfilePanel">
@@ -9887,6 +10111,54 @@
             echoCancellation: true
         };
         
+        // ═══════════════════════════════════════════════════════════
+// 🔍 DETECT ENVIRONMENT & WINDOW CONTROLS
+// ═══════════════════════════════════════════════════════════
+
+const isElectron = typeof window.electronAPI !== 'undefined';
+
+if (isElectron) {
+    console.log('🖥️ Running in Electron');
+    
+    // نمایش titlebar
+    const titlebar = document.getElementById('electronTitlebar');
+    if (titlebar) {
+        titlebar.style.display = 'flex';
+    }
+    
+    // اضافه کردن padding به body برای titlebar
+    document.body.style.paddingTop = '40px';
+    
+    // Window Controls
+    const minimizeBtn = document.getElementById('titlebarMinimize');
+    const maximizeBtn = document.getElementById('titlebarMaximize');
+    const closeBtn = document.getElementById('titlebarClose');
+    
+    if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', () => {
+            console.log('🔽 Minimize clicked');
+            window.electronAPI.minimizeWindow();
+        });
+    }
+    
+    if (maximizeBtn) {
+        maximizeBtn.addEventListener('click', () => {
+            console.log('🔲 Maximize clicked');
+            window.electronAPI.maximizeWindow();
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            console.log('❌ Close clicked');
+            window.electronAPI.closeWindow();
+        });
+    }
+    
+    console.log('✅ Window controls initialized');
+} else {
+    console.log('🌐 Running in Browser');
+}
         // Load settings
         const savedSettings = localStorage.getItem('nexusSettings');
         if (savedSettings) {
@@ -9898,55 +10170,56 @@
         if (savedPinned) {
             pinnedItems = JSON.parse(savedPinned);
         }
+     // ═══════════════════════════════════════════════════════════
+// 🖥️ Electron Integration
+// ═══════════════════════════════════════════════════════════
+
+if (isElectron && window.electron) {
+    console.log('🖥️ Running in Electron Desktop App');
+
+    window.electron.onUpdateAvailable((info) => {
+        console.log('🔔 Update available:', info.version);
+        showToast(`New version ${info.version} available! Downloading...`, 'info');
+    });
+
+    window.electron.onUpdateDownloaded((info) => {
+        console.log('✅ Update downloaded:', info.version);
         
-        // ═══════════════════════════════════════════════════════════
-        // 🖥️ Electron Integration
-        // ═══════════════════════════════════════════════════════════
-        
-        if (window.electron) {
-            console.log('🖥️ Running in Electron Desktop App');
-        
-            window.electron.onUpdateAvailable((info) => {
-                console.log('🔔 Update available:', info.version);
-                showToast(`New version ${info.version} available! Downloading...`, 'info');
-            });
-        
-            window.electron.onUpdateDownloaded((info) => {
-                console.log('✅ Update downloaded:', info.version);
-                
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: rgba(12,12,18,0.95);
-                    backdrop-filter: blur(40px);
-                    padding: 20px;
-                    border-radius: 16px;
-                    border: 1px solid rgba(99,102,241,0.3);
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-                    z-index: 10000;
-                    max-width: 350px;
-                `;
-                notification.innerHTML = `
-                    <div style="margin-bottom: 12px;">
-                        <strong>Update Ready!</strong><br>
-                        <span style="color:var(--text-dim);font-size:0.9rem;">Version ${info.version} has been downloaded</span>
-                    </div>
-                    <div style="display:flex;gap:8px;">
-                        <button onclick="window.electron.app.installUpdate()" 
-                                style="flex:1;padding:10px;background:var(--accent);border:none;border-radius:10px;color:white;cursor:pointer;font-weight:500;">
-                            Restart & Install
-                        </button>
-                        <button onclick="this.parentElement.parentElement.remove()" 
-                                style="padding:10px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:var(--text-dim);cursor:pointer;">
-                            Later
-                        </button>
-                    </div>
-                `;
-                document.body.appendChild(notification);
-            });
-        }
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(12,12,18,0.95);
+            backdrop-filter: blur(40px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(99,102,241,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            z-index: 10000;
+            max-width: 350px;
+        `;
+        notification.innerHTML = `
+            <div style="margin-bottom: 12px;">
+                <strong>Update Ready!</strong><br>
+                <span style="color:var(--text-dim);font-size:0.9rem;">Version ${info.version} has been downloaded</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="window.electron.app.installUpdate()" 
+                        style="flex:1;padding:10px;background:var(--accent);border:none;border-radius:10px;color:white;cursor:pointer;font-weight:500;">
+                    Restart & Install
+                </button>
+                <button onclick="this.parentElement.parentElement.remove()" 
+                        style="padding:10px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:var(--text-dim);cursor:pointer;">
+                    Later
+                </button>
+            </div>
+        `;
+        document.body.appendChild(notification);
+    });
+} else {
+    console.log('🌐 Running in Browser (Update features disabled)');
+}
         // ═══════════════════════════════════════════════════════════
         // 📌 PIN MANAGEMENT SYSTEM v3.0 - Production Ready
         // ═══════════════════════════════════════════════════════════
@@ -13238,71 +13511,75 @@ function setupCategoryCollapse() {
                         // Update UI
                         renderChannels(currentWorld?.channels || []);
                     }
-                    // ═══════════════════════════════════════════════════════════
-                    // 💬 Message Functions
-                    // ═══════════════════════════════════════════════════════════
-                    
-                    async function sendMessage() {
-                        const input = document.getElementById('msgInput');
-                        const content = input.value.trim();
-                        
-                        if (!content) return;
-                        
-                        const sendBtn = document.getElementById('sendBtn');
-                        sendBtn.style.pointerEvents = 'none';
-                        sendBtn.style.opacity = '0.5';
-                    
-                        try {
-                            if (isDMMode && currentDM) {
-                                const body = { 
-                                    receiverId: currentDM.id, 
-                                    content 
-                                };
-                                if (replyingTo) body.replyToId = replyingTo.id;
-                    
-                                const response = await api.request('/direct', {
-                                    method: 'POST',
-                                    body: JSON.stringify(body)
-                                });
-                    
-                                if (response && response.id) {
-                                    input.value = '';
-                                    document.getElementById('charCount').textContent = '0/2000';
-                                    cancelReply();
-                                }
-                                
-                                sendBtn.style.pointerEvents = 'auto';
-                                sendBtn.style.opacity = '1';
-                                return;
-                            }
-                            
-                            if (!currentChannel?.id) {
-                                sendBtn.style.pointerEvents = 'auto';
-                                sendBtn.style.opacity = '1';
-                                return;
-                            }
-                    
-                            const body = { channelId: currentChannel.id, content };
-                            if (replyingTo) body.replyToId = replyingTo.id;
-                    
-                            const response = await api.request('/messages', {
-                                method: 'POST',
-                                body: JSON.stringify(body)
-                            });
-                    
-                            if (response && response.id) {
-                                input.value = '';
-                                document.getElementById('charCount').textContent = '0/2000';
-                                cancelReply();
-                            }
-                        } catch (error) {
-                            console.error('Send message error:', error);
-                            showToast('Failed to send message', 'error');
-                        } finally {
-                            sendBtn.style.pointerEvents = 'auto';
-                            sendBtn.style.opacity = '1';
-                        }
-                    }
+                  // ═══════════════════════════════════════════════════════════
+// 💬 Message Functions
+// ═══════════════════════════════════════════════════════════
+
+async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.style.pointerEvents = 'none';
+    sendBtn.style.opacity = '0.5';
+
+    try {
+        if (isDMMode && currentDM) {
+            const body = { 
+                receiverId: currentDM.id, 
+                content 
+            };
+            if (replyingTo) body.replyToId = replyingTo.id;
+
+            const response = await api.request('/direct', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+
+            if (response && response.id) {
+                input.value = '';
+                input.style.height = 'auto'; // 🔥 Reset ارتفاع
+                input.style.height = '40px'; // 🔥 برگشت به حالت اولیه
+                document.getElementById('charCount').textContent = '0/2000';
+                cancelReply();
+            }
+            
+            sendBtn.style.pointerEvents = 'auto';
+            sendBtn.style.opacity = '1';
+            return;
+        }
+        
+        if (!currentChannel?.id) {
+            sendBtn.style.pointerEvents = 'auto';
+            sendBtn.style.opacity = '1';
+            return;
+        }
+
+        const body = { channelId: currentChannel.id, content };
+        if (replyingTo) body.replyToId = replyingTo.id;
+
+        const response = await api.request('/messages', {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+
+        if (response && response.id) {
+            input.value = '';
+            input.style.height = 'auto'; // 🔥 Reset ارتفاع
+            input.style.height = '40px'; // 🔥 برگشت به حالت اولیه
+            document.getElementById('charCount').textContent = '0/2000';
+            cancelReply();
+        }
+    } catch (error) {
+        console.error('Send message error:', error);
+        showToast('Failed to send message', 'error');
+    } finally {
+        sendBtn.style.pointerEvents = 'auto';
+        sendBtn.style.opacity = '1';
+    }
+}
                     
                     function replyToMessage(messageId, author, content) {
                         replyingTo = { id: messageId, author, content };
@@ -16844,6 +17121,154 @@ function toggleNavRail() {
                         }
                     }
                     // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// 🌍 World Creation Functions (Without Prompt)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Open World Creation Modal
+ */
+function openCreateWorldModal() {
+    console.log('🌍 Open Create World Modal');
+    
+    document.getElementById('newWorldName').value = '';
+    document.getElementById('newWorldDesc').value = '';
+    
+    openModal('createWorldModal');
+    document.getElementById('newWorldName').focus();
+}
+
+/**
+ * Submit World Creation Request to Server
+ */
+async function submitCreateWorld() {
+    const name = document.getElementById('newWorldName').value.trim();
+    const description = document.getElementById('newWorldDesc').value.trim();
+    
+    if (!name || name.length < 2) {
+        showToast('⚠️ World name must be at least 2 characters', 'error');
+        return;
+    }
+    
+    const btn = document.getElementById('submitCreateWorldBtn');
+    
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" style="width:18px;height:18px;animation:spin 1s linear infinite;"></i> Creating...';
+        }
+        
+        const response = await api.request('/worlds', {
+            method: 'POST',
+            body: JSON.stringify({ name, description })
+        });
+        
+        console.log('✅ World Created:', response);
+        
+        if (response && response.id) {
+            showToast('✨ World "' + name + '" created successfully!', 'success');
+            closeModal('createWorldModal');
+            
+            await loadWorlds();
+            
+            if (response.id) {
+                await selectWorld(response.id);
+            }
+        } else {
+            throw new Error(response?.error || 'Error creating world');
+        }
+        
+    } catch (error) {
+        console.error('❌ Create World Error:', error);
+        showToast('❌ Failed to create world', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="plus" style="width:18px;height:18px;"></i> Create';
+            lucide.createIcons();
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ✏️ توابع ویرایش کانال
+// ═════════════════════════════════════════════════════════
+
+let editingChannelId = null;
+
+/**
+ * باز کردن مودال ویرایش کانال
+ */
+function openEditChannelModal(channelId) {
+    editingChannelId = channelId;
+    
+    const channel = currentWorld?.channels?.find(c => c.id === channelId);
+    if (!channel) return;
+
+    document.getElementById('editChannelName').value = channel.name || '';
+    document.getElementById('editChannelTopic').value = channel.topic || '';
+
+    const topicGroup = document.getElementById('editTopicGroup');
+    if (topicGroup) {
+        topicGroup.style.display = (channel.type === 'voice') ? 'none' : 'block';
+    }
+
+    openModal('editChannelModal');
+    document.getElementById('editChannelName').focus();
+}
+
+/**
+ * ارسال اطلاعات ویرایش شده به سرور
+ */
+async function submitEditChannel() {
+    if (!editingChannelId) return;
+
+    const name = document.getElementById('editChannelName').value.trim();
+    const topic = document.getElementById('editChannelTopic').value.trim();
+    
+    if (!name) {
+        showToast('⚠️ نام کانال الزامی است', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('submitEditChannelBtn');
+
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" style="width:16px;height:16px;animation:spin 1s linear infinite;"></i> در حال ذخیره...';
+        }
+
+        const payload = { name };
+        
+        const channel = currentWorld?.channels?.find(c => c.id === editingChannelId);
+        if (channel && channel.type === 'text' && topic) {
+            payload.topic = topic;
+        }
+
+        await api.request(`/worlds/${currentWorld.id}/channels/${editingChannelId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(payload)
+        });
+
+        showToast('✅ کانال ویرایش شد!', 'success');
+        closeModal('editChannelModal');
+        
+        await selectWorld(currentWorld.id);
+        renderChannelsInPanel();
+        
+    } catch (error) {
+        console.error('❌ Edit Channel Error:', error);
+        showToast('❌ ویرایش کانال ناموفق بود', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'ذخیره';
+            lucide.createIcons();
+        }
+    }
+}
+                    // ═══════════════════════════════════════════════════════════
                     // 🎛️ Event Listeners Setup (Refactored)
                     // ═══════════════════════════════════════════════════════════
                     function setupEventListeners() {
@@ -17054,7 +17479,7 @@ function toggleNavRail() {
                         // ──────────────────────
                         // World & Channel Actions
                         // ──────────────────────
-                        document.getElementById('createWorldBtn')?.addEventListener('click', createWorld);
+                     document.getElementById('createWorldBtn')?.addEventListener('click', openCreateWorldModal);
                         document.getElementById('btnJoinWorld')?.addEventListener('click', openJoinWorldModal);
                         document.getElementById('joinWorldBtn')?.addEventListener('click', joinWorldByCode);
                         document.getElementById('joinWorldCodeInput')?.addEventListener('keypress', (e) => {
@@ -17079,50 +17504,72 @@ function toggleNavRail() {
                         // ──────────────────────
                         // Message Input & Typing
                         // ──────────────────────
-                        msgInput?.addEventListener('keypress', (e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                sendMessage();
-                            }
-                        });
+                     // ──────────────────────
+// Message Input & Typing
+// ──────────────────────
+
+// ✅ FIX: Changed from 'keypress' to 'keydown' for Shift+Enter support
+msgInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        if (e.shiftKey) {
+            // Shift+Enter: Allow new line (do nothing)
+            return;
+        } else {
+            // Enter alone: Send message
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+});
+
+msgInput?.addEventListener('input', function() {
+    // Update character count
+    document.getElementById('charCount').textContent = `${this.value.length}/2000`;
+    
+    // Auto-expand textarea height
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+    
+    // Typing indicator
+    if (currentChannel?.id || (isDMMode && currentDM)) {
+        socket?.emit('typing:start', currentChannel?.id || currentDM?.id);
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            socket?.emit('typing:stop', currentChannel?.id || currentDM?.id);
+        }, 2000);
+    }
+});
+
+sendBtn?.addEventListener('click', sendMessage);
                     
-                        msgInput?.addEventListener('input', () => {
-                            document.getElementById('charCount').textContent = `${msgInput.value.length}/2000`;
-                    
-                            if (currentChannel?.id || (isDMMode && currentDM)) {
-                                socket?.emit('typing:start', currentChannel?.id || currentDM?.id);
-                                clearTimeout(typingTimeout);
-                                typingTimeout = setTimeout(() => {
-                                    socket?.emit('typing:stop', currentChannel?.id || currentDM?.id);
-                                }, 2000);
-                            }
-                        });
-                    
-                        sendBtn?.addEventListener('click', sendMessage);
-                    
-                        // ──────────────────────
-                        // Emoji Picker
-                        // ──────────────────────
-                        emojiBtn?.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            emojiPicker?.classList.toggle('active');
-                            currentReactionMessageId = null;
-                        });
-                    
-                        document.querySelectorAll('.emoji-item').forEach(item => {
-                            item.addEventListener('click', () => {
-                                const emoji = item.textContent;
-                                if (currentReactionMessageId) {
-                                    addReaction(currentReactionMessageId, emoji);
-                                    closeEmojiPicker();
-                                } else {
-                                    msgInput.value += emoji;
-                                    msgInput.focus();
-                                    document.getElementById('charCount').textContent = `${msgInput.value.length}/2000`;
-                                }
-                            });
-                        });
-                    
+                    // ──────────────────────
+// Emoji Picker
+// ──────────────────────
+emojiBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    emojiPicker?.classList.toggle('active');
+    currentReactionMessageId = null;
+});
+
+document.querySelectorAll('.emoji-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const emoji = item.textContent;
+        if (currentReactionMessageId) {
+            addReaction(currentReactionMessageId, emoji);
+            closeEmojiPicker();
+        } else {
+            msgInput.value += emoji;
+            msgInput.focus();
+            
+            // 🔥 Update character count
+            document.getElementById('charCount').textContent = `${msgInput.value.length}/2000`;
+            
+            // 🔥 Auto-expand textarea
+            msgInput.style.height = 'auto';
+            msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + 'px';
+        }
+    });
+});
                         // ──────────────────────
                         // Voice Controls & Orb
                         // ──────────────────────
@@ -17407,6 +17854,10 @@ function toggleNavRail() {
                     document.getElementById('newCategoryName')?.addEventListener('keypress', (e) => {
                         if (e.key === 'Enter') createCategoryAction();
                     });
+                    
+                    // دکمه‌های مودال‌های جدید
+document.getElementById('submitCreateWorldBtn')?.addEventListener('click', submitCreateWorld);
+document.getElementById('submitEditChannelBtn')?.addEventListener('click', submitEditChannel);
                         console.log('✅ Event listeners setup complete');
                     }
                     

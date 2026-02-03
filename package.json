@@ -1,6 +1,6 @@
 {
   "name": "nexus-desktop",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "NEXUS - Orbital Communication Platform",
   "main": "main.js",
   "author": "NEXUS Team",
@@ -13,6 +13,8 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "build:win": "electron-builder --win --publish never",
+    "build:installer": "electron-builder --win --config.win.target=nsis --publish never",
+    "build:portable": "electron-builder --win --config.win.target=portable --publish never",
     "build:mac": "electron-builder --mac --publish never",
     "build:linux": "electron-builder --linux --publish never",
     "clean": "rm -rf dist node_modules && npm install"
@@ -36,7 +38,7 @@
       "main.js",
       "preload.js",
       "src/**/*",
-      "build/**/*"
+      "build/icon.*"
     ],
     "win": {
       "target": [
@@ -50,31 +52,38 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "NEXUS-Setup-${version}.${ext}"
+      "artifactName": "${productName}-${target}-${version}.${ext}",
+      "publisherName": "NEXUS Team"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "NEXUS",
       "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico"
+      "uninstallerIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "displayLanguageSelector": false,
+      "deleteAppDataOnUninstall": true,
+      "runAfterFinish": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "portable": {
-      "artifactName": "NEXUS-Portable-${version}.${ext}"
+      "artifactName": "${productName}-Portable-${version}.${ext}"
     },
     "mac": {
       "target": ["dmg", "zip"],
       "icon": "build/icon.icns",
       "category": "public.app-category.social-networking",
-      "artifactName": "NEXUS-${version}-mac.${ext}"
+      "artifactName": "${productName}-${version}-mac.${ext}"
     },
     "linux": {
       "target": ["AppImage", "deb"],
       "icon": "build/icon.png",
       "category": "Network",
-      "artifactName": "NEXUS-${version}-linux.${ext}"
+      "artifactName": "${productName}-${version}-linux.${ext}"
     }
   }
 }
