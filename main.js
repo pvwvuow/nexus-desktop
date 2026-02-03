@@ -9,6 +9,7 @@ const path = require('path');
 
 const store = new Store();
 let mainWindow = null;
+let updaterWindow = null;
 let tray = null;
 let isQuitting = false;
 let splashWindow = null;
@@ -234,6 +235,46 @@ function createWindow() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// 🔄 CREATE UPDATER WINDOW
+// ═══════════════════════════════════════════════════════════
+
+function createUpdaterWindow() {
+    if (updaterWindow) {
+        updaterWindow.focus();
+        return;
+    }
+
+    updaterWindow = new BrowserWindow({
+        width: 600,
+        height: 700,
+        resizable: false,
+        frame: false,
+        transparent: false,
+        backgroundColor: '#030305',
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
+        },
+        parent: mainWindow,
+        modal: false,
+        show: false
+    });
+
+    updaterWindow.loadFile(path.join(__dirname, 'src/updater.html'));
+
+    updaterWindow.once('ready-to-show', () => {
+        updaterWindow.show();
+    });
+
+    updaterWindow.on('closed', () => {
+        updaterWindow = null;
+    });
+
+    console.log('✅ Updater window created');
+}
+
+// ═══════════════════════════════════════════════════════════
 // 🎯 CREATE TRAY
 // ═══════════════════════════════════════════════════════════
 
@@ -266,7 +307,7 @@ function createTray() {
             label: 'Check for Updates',
             click: () => {
                 if (!isDev) {
-                    autoUpdater.checkForUpdatesAndNotify();
+                    createUpdaterWindow();
                 } else {
                     console.log('⏭️ Auto-update disabled in dev mode');
                 }
@@ -310,36 +351,57 @@ function initAutoUpdater() {
 
     autoUpdater.on('checking-for-update', () => {
         console.log('🔍 Checking for updates...');
+        sendToUpdater('checking-for-update');
     });
 
     autoUpdater.on('update-available', (info) => {
         console.log('🆕 Update available:', info.version);
+        sendToUpdater('update-available', {
+            version: info.version,
+            currentVersion: app.getVersion(),
+            releaseDate: info.releaseDate,
+            releaseNotes: info.releaseNotes
+        });
         
         if (mainWindow) {
-            mainWindow.webContents.send('update-available', info);
+            mainWindow.webContents.send('updater-message', {
+                event: 'update-available',
+                data: { version: info.version }
+            });
         }
-
-        if (Notification.isSupported()) {
-            new Notification({
-                title: 'Update Available',
-                body: `Version ${info.version} is downloading...`,
-                icon: path.join(__dirname, 'build/icon.png')
-            }).show();
-        }
-        
-        autoUpdater.downloadUpdate();
     });
 
     autoUpdater.on('update-not-available', () => {
         console.log('✅ NEXUS is up to date');
+        sendToUpdater('update-not-available', {
+            version: app.getVersion(),
+            message: 'You are running the latest version'
+        });
+        
+        if (mainWindow) {
+            mainWindow.webContents.send('updater-message', {
+                event: 'update-not-available',
+                data: {}
+            });
+        }
     });
 
     autoUpdater.on('download-progress', (progress) => {
         const percent = Math.round(progress.percent);
         console.log(`📥 Download: ${percent}%`);
         
+        sendToUpdater('download-progress', {
+            percent: progress.percent,
+            transferred: progress.transferred,
+            total: progress.total,
+            bytesPerSecond: progress.bytesPerSecond
+        });
+
         if (mainWindow) {
-            mainWindow.webContents.send('update-download-progress', progress);
+            mainWindow.webContents.send('updater-message', {
+                event: 'download-progress',
+                data: { percent: progress.percent }
+            });
         }
 
         if (tray) {
@@ -350,14 +412,22 @@ function initAutoUpdater() {
     autoUpdater.on('update-downloaded', (info) => {
         console.log('✅ Update downloaded:', info.version);
         
+        sendToUpdater('update-downloaded', {
+            version: info.version,
+            message: 'Update ready to install'
+        });
+
         if (mainWindow) {
-            mainWindow.webContents.send('update-downloaded', info);
+            mainWindow.webContents.send('updater-message', {
+                event: 'update-downloaded',
+                data: { version: info.version }
+            });
         }
 
         if (Notification.isSupported()) {
             const notification = new Notification({
-                title: 'Update Ready',
-                body: `Version ${info.version} is ready. Restart to install.`,
+                title: '✨ Update Ready',
+                body: `NEXUS ${info.version} is ready. Restart to install.`,
                 icon: path.join(__dirname, 'build/icon.png')
             });
             
@@ -377,20 +447,34 @@ function initAutoUpdater() {
     autoUpdater.on('error', (err) => {
         console.error('❌ Update error:', err);
         
+        sendToUpdater('update-error', {
+            message: err.message || 'Update failed'
+        });
+
         if (mainWindow) {
-            mainWindow.webContents.send('update-error', err.message);
+            mainWindow.webContents.send('updater-message', {
+                event: 'update-error',
+                data: { message: err.message }
+            });
         }
     });
 
-    // Check on startup (after 10s)
+    // Check on startup (after 5s)
     setTimeout(() => {
-        autoUpdater.checkForUpdatesAndNotify();
-    }, 10000);
+        console.log('🔍 Auto-checking for updates...');
+        autoUpdater.checkForUpdates();
+    }, 5000);
 
     // Check every 4 hours
     setInterval(() => {
-        autoUpdater.checkForUpdatesAndNotify();
+        autoUpdater.checkForUpdates();
     }, 4 * 60 * 60 * 1000);
+}
+
+function sendToUpdater(event, data = {}) {
+    if (updaterWindow && !updaterWindow.isDestroyed()) {
+        updaterWindow.webContents.send('updater-message', { event, data });
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -427,7 +511,7 @@ function registerShortcuts() {
 // ═══════════════════════════════════════════════════════════
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🪟 Window Controls (برای titlebar)
+// 🪟 Window Controls
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ipcMain.on('minimize-window', () => {
     if (mainWindow) mainWindow.minimize();
@@ -460,6 +544,40 @@ ipcMain.on('logout', () => {
         mainWindow.loadFile(path.join(__dirname, 'src/login.html'));
         console.log('✅ User logged out, switched to login.html');
     }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔄 Auto-Updater Controls
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ipcMain.on('check-for-updates', () => {
+    if (!isDev) {
+        console.log('🔍 Manual update check requested');
+        autoUpdater.checkForUpdates();
+    } else {
+        console.log('⏭️ Update check skipped in dev mode');
+        sendToUpdater('update-error', {
+            message: 'Updates disabled in development mode'
+        });
+    }
+});
+
+ipcMain.on('download-update', () => {
+    if (!isDev) {
+        console.log('📥 Download update requested');
+        autoUpdater.downloadUpdate();
+    }
+});
+
+ipcMain.on('install-update', () => {
+    if (!isDev) {
+        console.log('🔄 Install update requested');
+        isQuitting = true;
+        autoUpdater.quitAndInstall(false, true);
+    }
+});
+
+ipcMain.handle('get-app-version', () => {
+    return app.getVersion();
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -499,8 +617,14 @@ ipcMain.handle('app.relaunch', () => {
 });
 
 ipcMain.handle('app.installUpdate', () => {
-    isQuitting = true;
-    autoUpdater.quitAndInstall();
+    if (!isDev) {
+        isQuitting = true;
+        autoUpdater.quitAndInstall();
+    }
+});
+
+ipcMain.handle('app.openUpdater', () => {
+    createUpdaterWindow();
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

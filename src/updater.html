@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#030305">
+    <title>ORB // System Update</title>
+    
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@200;300;400;500;600&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-void: #030305;
+            --glass: rgba(255,255,255,0.025);
+            --glass-border: rgba(255,255,255,0.06);
+            --glass-highlight: rgba(255,255,255,0.12);
+            --text-bright: rgba(255,255,255,0.95);
+            --text-dim: rgba(255,255,255,0.4);
+            --text-ghost: rgba(255,255,255,0.15);
+            --accent: #ec4899;
+            --accent-secondary: #a855f7;
+            --accent-glow: rgba(236,72,153,0.4);
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-void);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-bright);
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🌌 COSMOS BACKGROUND
+        ═══════════════════════════════════════════════════════════ */
+        
+        .cosmos {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+        }
+
+        .nebula-1 {
+            width: 800px;
+            height: 800px;
+            top: -400px;
+            right: -200px;
+            background: radial-gradient(circle, #ec4899, transparent 70%);
+        }
+
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            bottom: -300px;
+            left: -150px;
+            background: radial-gradient(circle, #a855f7, transparent 70%);
+        }
+
+        .film-grain {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🌍 ORBIT ANIMATION
+        ═══════════════════════════════════════════════════════════ */
+        
+        .orbit-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(236,72,153,0.1);
+            border-radius: 50%;
+            animation: rotate 60s linear infinite;
+        }
+
+        .orbit-1 {
+            width: 400px;
+            height: 400px;
+            margin: -200px 0 0 -200px;
+        }
+
+        .orbit-2 {
+            width: 550px;
+            height: 550px;
+            margin: -275px 0 0 -275px;
+            animation-duration: 80s;
+            animation-direction: reverse;
+        }
+
+        .orbit-3 {
+            width: 700px;
+            height: 700px;
+            margin: -350px 0 0 -350px;
+            animation-duration: 100s;
+        }
+
+        .planet {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(236,72,153,0.6);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🪟 UPDATER CARD
+        ═══════════════════════════════════════════════════════════ */
+        
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                inset 0 1px 0 var(--glass-highlight), 
+                0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle, 
+                rgba(236, 72, 153, 0.08) 0%, 
+                rgba(168, 85, 247, 0.05) 30%,
+                rgba(200, 120, 200, 0.02) 60%,
+                transparent 85%
+            );
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            transform: translate(-50%, -50%);
+            left: var(--mouse-x, 50%);
+            top: var(--mouse-y, 50%);
+            mix-blend-mode: screen;
+            filter: blur(10px);
+        }
+
+        .glass.glass-active::before {
+            opacity: 1;
+        }
+
+        .updater-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            animation: cardEntry 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes cardEntry {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🎨 HEADER
+        ═══════════════════════════════════════════════════════════ */
+        
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .header-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-bright), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           📊 STATUS BOX
+        ═══════════════════════════════════════════════════════════ */
+        
+        .status-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #ec4899, #a855f7);
+            box-shadow: 0 0 10px rgba(236,72,153,0.6);
+        }
+
+        .status-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-title i {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+        }
+
+        .status-message {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .version-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .version-item {
+            text-align: center;
+        }
+
+        .version-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .version-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           📊 PROGRESS BAR
+        ═══════════════════════════════════════════════════════════ */
+        
+        .progress-section {
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 12px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ec4899 0%, #a855f7 50%, #ec4899 100%);
+            background-size: 200% 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px rgba(236,72,153,0.6);
+            animation: shimmer 2s ease-in-out infinite;
+            border-radius: 20px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .progress-percent {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🔘 BUTTONS
+        ═══════════════════════════════════════════════════════════ */
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 0 20px rgba(236,72,153,0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(236,72,153,0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-bright);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn.hidden {
+            display: none;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ⏳ LOADING SPINNER
+        ═══════════════════════════════════════════════════════════ */
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           📱 RESPONSIVE
+        ═══════════════════════════════════════════════════════════ */
+        
+        @media (max-width: 600px) {
+            .updater-card {
+                max-width: 90%;
+                padding: 28px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .orbit-container {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🌌 Cosmos Background -->
+    <div class="cosmos">
+        <div class="stars" id="stars"></div>
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="film-grain"></div>
+    </div>
+
+    <!-- 🌍 Orbit Animation -->
+    <div class="orbit-container">
+        <div class="orbit orbit-1">
+            <div class="planet"></div>
+        </div>
+        <div class="orbit orbit-2">
+            <div class="planet"></div>
+        </div>
+        <div class="orbit orbit-3">
+            <div class="planet"></div>
+        </div>
+    </div>
+
+    <!-- 🔄 Updater Card -->
+    <div class="updater-card glass" id="updaterCard">
+        <div class="header">
+            <div class="header-icon" id="headerIcon">🔄</div>
+            <h1>SYSTEM UPDATE</h1>
+            <p>Orbital Maintenance</p>
+        </div>
+
+        <div class="status-box">
+            <div class="status-title" id="statusTitle">
+                <i data-lucide="search"></i>
+                <span>Checking for updates...</span>
+            </div>
+            <div class="status-message" id="statusMessage">
+                Scanning orbital network for available updates
+            </div>
+            <div class="version-info">
+                <div class="version-item">
+                    <div class="version-label">Current</div>
+                    <div class="version-value" id="currentVersion">-</div>
+                </div>
+                <div class="version-item" id="newVersionBox" style="display: none;">
+                    <div class="version-label">Available</div>
+                    <div class="version-value" id="newVersion">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressSpeed">-</span>
+                <span class="progress-percent" id="progressPercent">0%</span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-primary hidden" id="downloadBtn" onclick="downloadUpdate()">
+                <i data-lucide="download"></i>
+                Download Update
+            </button>
+            <button class="btn btn-primary hidden" id="installBtn" onclick="installUpdate()">
+                <i data-lucide="zap"></i>
+                Install & Restart
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i data-lucide="x"></i>
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // 🔧 INITIALIZE
+        // ═══════════════════════════════════════════════════════════
+
+        lucide.createIcons();
+
+        let updateInfo = null;
+
+        // ═══════════════════════════════════════════════════════════
+        // 🌟 STARS
+        // ═══════════════════════════════════════════════════════════
+
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 2 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // ═══════════════════════════════════════════════════════════
+        // 🖱️ MOUSE GLOW
+        // ═══════════════════════════════════════════════════════════
+
+        const card = document.getElementById('updaterCard');
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            card.style.setProperty('--mouse-x', x + '%');
+            card.style.setProperty('--mouse-y', y + '%');
+            card.classList.add('glass-active');
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.classList.remove('glass-active');
+        });
+
+        // ═══════════════════════════════════════════════════════════
+        // 🔄 UPDATER LOGIC
+        // ═══════════════════════════════════════════════════════════
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Get current version
+            const version = await window.electronAPI.getAppVersion();
+            document.getElementById('currentVersion').textContent = `v${version}`;
+
+            // Listen to updater events
+            window.electronAPI.onUpdaterMessage((data) => {
+                handleUpdaterEvent(data);
+            });
+
+            // Auto check
+            setTimeout(() => {
+                window.electronAPI.checkForUpdates();
+            }, 1000);
+        });
+
+        function handleUpdaterEvent(message) {
+            const { event, data } = message;
+
+            switch(event) {
+                case 'update-available':
+                    updateInfo = data;
+                    setStatus('available', 'Update Available!', 
+                        `Version ${data.version} is ready to download`);
+                    document.getElementById('newVersion').textContent = `v${data.version}`;
+                    document.getElementById('newVersionBox').style.display = 'block';
+                    document.getElementById('headerIcon').textContent = '🎉';
+                    showButton('downloadBtn');
+                    break;
+
+                case 'update-not-available':
+                    setStatus('up-to-date', 'System Up to Date', 
+                        'You are running the latest version of ORB');
+                    document.getElementById('headerIcon').textContent = '✅';
+                    break;
+
+                case 'download-progress':
+                    setStatus('downloading', 'Downloading Update...', 
+                        'Please do not close the application');
+                    updateProgress(data);
+                    showProgress();
+                    hideButton('downloadBtn');
+                    document.getElementById('headerIcon').textContent = '⬇️';
+                    break;
+
+                case 'update-downloaded':
+                    setStatus('ready', 'Update Ready!', 
+                        'Click install to update and restart ORB');
+                    hideProgress();
+                    showButton('installBtn');
+                    document.getElementById('headerIcon').textContent = '✨';
+                    break;
+
+                case 'update-error':
+                    setStatus('error', 'Update Failed', 
+                        data.message || 'Unable to check for updates');
+                    hideProgress();
+                    document.getElementById('headerIcon').textContent = '⚠️';
+                    break;
+            }
+        }
+
+        function setStatus(type, title, message) {
+            const titleEl = document.getElementById('statusTitle');
+            const messageEl = document.getElementById('statusMessage');
+            
+            let icon = 'search';
+            if (type === 'available') icon = 'package';
+            if (type === 'downloading') icon = 'download';
+            if (type === 'ready') icon = 'check-circle';
+            if (type === 'error') icon = 'alert-circle';
+            if (type === 'up-to-date') icon = 'check';
+            
+            titleEl.innerHTML = `<i data-lucide="${icon}"></i><span>${title}</span>`;
+            messageEl.textContent = message;
+            
+            lucide.createIcons();
+        }
+
+        function updateProgress(data) {
+            const percent = Math.round(data.percent);
+            const transferredMB = (data.transferred / 1024 / 1024).toFixed(1);
+            const totalMB = (data.total / 1024 / 1024).toFixed(1);
+            const speedMBs = (data.bytesPerSecond / 1024 / 1024).toFixed(2);
+            
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressSpeed').textContent = 
+                `${transferredMB}MB / ${totalMB}MB • ${speedMBs}MB/s`;
+        }
+
+        function showProgress() {
+            document.getElementById('progressSection').classList.add('show');
+        }
+
+        function hideProgress() {
+            document.getElementById('progressSection').classList.remove('show');
+        }
+
+        function showButton(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function hideButton(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function downloadUpdate() {
+            window.electronAPI.downloadUpdate();
+        }
+
+        function installUpdate() {
+            setStatus('installing', 'Installing...', 'ORB will restart shortly');
+            document.getElementById('installBtn').disabled = true;
+            document.getElementById('headerIcon').textContent = '⚡';
+            
+            setTimeout(() => {
+                window.electronAPI.installUpdate();
+            }, 1000);
+        }
+
+        console.log('🔄 ORB Updater Ready');
+    </script>
+</body>
+</html>

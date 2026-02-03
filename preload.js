@@ -16,7 +16,8 @@ contextBridge.exposeInMainWorld('electron', {
         quit: () => ipcRenderer.invoke('app.quit'),
         isMaximized: () => ipcRenderer.invoke('app.isMaximized'),
         relaunch: () => ipcRenderer.invoke('app.relaunch'),
-        installUpdate: () => ipcRenderer.invoke('app.installUpdate')
+        installUpdate: () => ipcRenderer.invoke('app.installUpdate'),
+        openUpdater: () => ipcRenderer.invoke('app.openUpdater')
     },
 
     // Persistent storage
@@ -41,7 +42,7 @@ contextBridge.exposeInMainWorld('electron', {
         flashFrame: () => ipcRenderer.invoke('window.flashFrame')
     },
 
-    // Update events
+    // Update events (از main window)
     onUpdateAvailable: (callback) => {
         ipcRenderer.on('update-available', (event, info) => callback(info));
     },
@@ -63,13 +64,29 @@ contextBridge.exposeInMainWorld('electron', {
 });
 
 // ═══════════════════════════════════════════════════════════
-// 🪟 TITLEBAR API (برای دکمه‌های window control)
+// 🪟 TITLEBAR API (برای window controls)
 // ═══════════════════════════════════════════════════════════
 
 contextBridge.exposeInMainWorld('electronAPI', {
     minimizeWindow: () => ipcRenderer.send('minimize-window'),
     maximizeWindow: () => ipcRenderer.send('maximize-window'),
-    closeWindow: () => ipcRenderer.send('close-window')
+    closeWindow: () => ipcRenderer.send('close-window'),
+    
+    // Auto-updater APIs (برای updater.html)
+    checkForUpdates: () => ipcRenderer.send('check-for-updates'),
+    downloadUpdate: () => ipcRenderer.send('download-update'),
+    installUpdate: () => ipcRenderer.send('install-update'),
+    getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+    
+    // Listen to updater messages
+    onUpdaterMessage: (callback) => {
+        ipcRenderer.on('updater-message', (event, data) => callback(data));
+    },
+    
+    // Remove listener
+    removeUpdaterListener: () => {
+        ipcRenderer.removeAllListeners('updater-message');
+    }
 });
 
 // ═══════════════════════════════════════════════════════════
