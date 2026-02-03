@@ -6,6 +6,9 @@ on:
     tags: [ 'v*' ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     name: Build for Windows
@@ -29,73 +32,22 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Upload Windows Installer
+      - name: Upload Windows Installer (Artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: NEXUS-Windows-Installer
+          name: NEXUS-Windows-v${{ github.run_number }}
           path: |
             dist/*.exe
             dist/*.exe.blockmap
+          retention-days: 30
       
-      - name: Create Release
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: |
-            dist/*.exe
+          files: dist/*.exe
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-all-platforms:
-    name: Build for ${{ matrix.platform }}
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: Linux
-            build_command: npm run build:linux
-            artifact_path: |
-              dist/*.AppImage
-              dist/*.deb
-          - os: macos-latest
-            platform: macOS
-            build_command: npm run build:mac
-            artifact_path: |
-              dist/*.dmg
-              dist/*.zip
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build
-        run: ${{ matrix.build_command }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: NEXUS-${{ matrix.platform }}
-          path: ${{ matrix.artifact_path }}
-      
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ matrix.artifact_path }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
