@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS // Access</title>
-    
-    <!-- PWA Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#030305">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
+    <title>ORB // Access</title>
+    
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@200;300;400;500;600&display=swap');
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -28,96 +28,273 @@
             --text-bright: rgba(255,255,255,0.95);
             --text-dim: rgba(255,255,255,0.4);
             --text-ghost: rgba(255,255,255,0.15);
-            --accent: #6366f1;
-            --accent-glow: rgba(99,102,241,0.4);
-            --danger: #ef4444;
+            --accent: #ec4899;
+            --accent-secondary: #a855f7;
+            --accent-glow: rgba(236,72,153,0.4);
             --success: #22c55e;
-            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-void);
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.06), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.06), transparent 25%);
-            min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             color: var(--text-bright);
-            overflow: hidden;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
             position: relative;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🌟 STARS BACKGROUND */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           🪟 WINDOW CONTROLS (فقط Electron)
+           ═══════════════════════════════════════════════════════════ */
         
-        #stars {
+        .titlebar {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            height: 40px;
+            background: transparent;
+            -webkit-app-region: drag;
+            z-index: 1000;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        .titlebar-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .window-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--text-dim);
+        }
+
+        .window-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-bright);
+            transform: scale(1.05);
+        }
+
+        .window-btn.close:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .window-btn i {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🌌 COSMOS BACKGROUND
+           ═══════════════════════════════════════════════════════════ */
+        
+        .cosmos {
+            position: fixed;
+            inset: 0;
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
         }
 
         .star {
             position: absolute;
-            width: 2px;
-            height: 2px;
             background: white;
             border-radius: 50%;
-            opacity: 0;
-            animation: twinkle 4s ease-in-out infinite;
+            animation: twinkle 3s ease-in-out infinite;
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0; }
+            0%, 100% { opacity: 0.3; }
             50% { opacity: 0.8; }
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🎯 CURSOR GLOW */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        #cursor-glow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(200, 180, 200, 0.08) 0%, rgba(180, 160, 180, 0.05) 30%, transparent 70%);
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 2;
-            mix-blend-mode: screen;
-            filter: blur(40px);
-            transition: opacity 0.3s;
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🪟 LOGIN CARD */
-        /* ═══════════════════════════════════════════════════════════ */
+        .nebula-1 {
+            width: 800px;
+            height: 800px;
+            top: -400px;
+            right: -200px;
+            background: radial-gradient(circle, #ec4899, transparent 70%);
+        }
+
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            bottom: -300px;
+            left: -150px;
+            background: radial-gradient(circle, #a855f7, transparent 70%);
+        }
+
+        .film-grain {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🌍 ORBIT ANIMATION
+           ═══════════════════════════════════════════════════════════ */
         
+        .orbit-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(236,72,153,0.1);
+            border-radius: 50%;
+            animation: rotate 60s linear infinite;
+        }
+
+        .orbit-1 {
+            width: 400px;
+            height: 400px;
+            margin: -200px 0 0 -200px;
+        }
+
+        .orbit-2 {
+            width: 550px;
+            height: 550px;
+            margin: -275px 0 0 -275px;
+            animation-duration: 80s;
+            animation-direction: reverse;
+        }
+
+        .orbit-3 {
+            width: 700px;
+            height: 700px;
+            margin: -350px 0 0 -350px;
+            animation-duration: 100s;
+        }
+
+        .planet {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(236,72,153,0.6);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🪟 LOGIN CARD - Glass Effect
+           ═══════════════════════════════════════════════════════════ */
+        
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                inset 0 1px 0 var(--glass-highlight), 
+                0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Mouse Tracking Light - صورتی-خاکستری ملایم */
+        .glass::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle, 
+                rgba(236, 72, 153, 0.08) 0%, 
+                rgba(168, 85, 247, 0.05) 30%,
+                rgba(200, 120, 200, 0.02) 60%,
+                transparent 85%
+            );
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            transform: translate(-50%, -50%);
+            left: var(--mouse-x, 50%);
+            top: var(--mouse-y, 50%);
+            mix-blend-mode: screen;
+            filter: blur(10px);
+        }
+
+        .glass.glass-active::before {
+            opacity: 1;
+        }
+
         .login-card {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 420px;
-            padding: 40px;
-            background: var(--glass);
-            backdrop-filter: blur(40px) saturate(150%);
-            -webkit-backdrop-filter: blur(40px) saturate(150%);
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 
-                inset 0 1px 0 var(--glass-highlight), 
-                0 25px 50px rgba(0,0,0,0.5),
-                0 0 100px rgba(99,102,241,0.1);
+            max-width: 400px;
+            padding: 36px;
             animation: cardEntry 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: 20px;
         }
 
         @keyframes cardEntry {
@@ -131,114 +308,76 @@
             }
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🎨 LOGO */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           🎨 LOGO
+           ═══════════════════════════════════════════════════════════ */
         
         .logo {
             text-align: center;
-            margin-bottom: 36px;
+            margin-bottom: 32px;
         }
 
-        .logo-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 16px;
-            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 10px 30px rgba(99,102,241,0.3);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .logo h1 {
-            font-size: 32px;
+        .logo-text {
+            font-size: 42px;
             font-weight: 700;
             font-family: 'Space Mono', monospace;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
+            letter-spacing: 8px;
+            margin-bottom: 6px;
             background: linear-gradient(135deg, var(--text-bright), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .logo p {
-            font-size: 11px;
+        .logo-subtitle {
+            font-size: 10px;
             color: var(--text-dim);
             font-family: 'Space Mono', monospace;
             letter-spacing: 3px;
             text-transform: uppercase;
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 📑 TABS */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           📑 TABS
+           ═══════════════════════════════════════════════════════════ */
         
         .tabs {
             display: flex;
             gap: 6px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             background: rgba(0,0,0,0.3);
-            padding: 6px;
-            border-radius: 14px;
+            padding: 4px;
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
         }
 
         .tab {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-dim);
-            border-radius: 10px;
+            border-radius: 9px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s;
             background: transparent;
             border: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
-            opacity: 0;
-            transition: opacity 0.3s;
         }
 
         .tab:hover {
             color: var(--text-bright);
-        }
-
-        .tab:hover::before {
-            opacity: 1;
+            background: rgba(255,255,255,0.05);
         }
 
         .tab.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(236,72,153,0.2);
             color: var(--text-bright);
-            box-shadow: 
-                0 4px 12px rgba(99,102,241,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 📝 FORMS */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           📝 FORMS
+           ═══════════════════════════════════════════════════════════ */
         
         .form-view {
             display: none;
@@ -261,16 +400,16 @@
         }
 
         .input-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .input-group label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--text-dim);
-            margin-bottom: 8px;
-            margin-left: 4px;
+            margin-bottom: 6px;
+            margin-left: 2px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -279,8 +418,8 @@
             width: 100%;
             background: rgba(0,0,0,0.3);
             border: 1px solid var(--glass-border);
-            padding: 14px 16px;
-            border-radius: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
             color: var(--text-bright);
             font-size: 14px;
             transition: all 0.3s;
@@ -290,53 +429,70 @@
 
         .input-field:focus {
             border-color: var(--accent);
-            background: rgba(99,102,241,0.05);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+            background: rgba(236,72,153,0.05);
+            box-shadow: 0 0 0 3px rgba(236,72,153,0.1);
         }
 
         .input-field::placeholder {
             color: rgba(255,255,255,0.2);
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🔘 BUTTON */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* Password Toggle */
+        .input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 4px;
+            -webkit-app-region: no-drag;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: var(--text-bright);
+        }
+
+        .password-toggle i {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           🔘 BUTTON
+           ═══════════════════════════════════════════════════════════ */
         
         .btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            padding: 12px;
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             color: white;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(99,102,241,0.3);
-            margin-top: 12px;
+            box-shadow: 0 0 20px rgba(236,72,153,0.3);
+            margin-top: 8px;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
+            -webkit-app-region: no-drag;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99,102,241,0.5);
+            box-shadow: 0 10px 30px rgba(236,72,153,0.5);
         }
 
         .btn:active {
@@ -346,22 +502,18 @@
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
 
-        .btn:disabled:hover {
-            box-shadow: 0 0 20px rgba(99,102,241,0.3);
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 💬 MESSAGE BOX */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           💬 MESSAGE BOX
+           ═══════════════════════════════════════════════════════════ */
         
         .message {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            margin-bottom: 20px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 16px;
             text-align: center;
             display: none;
             animation: messageSlide 0.3s ease-out;
@@ -381,57 +533,46 @@
 
         .message.error {
             background: rgba(239,68,68,0.15);
-            color: var(--danger);
+            color: #ef4444;
             border: 1px solid rgba(239,68,68,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-
-        .message.error::before {
-            content: '⚠️';
-            font-size: 16px;
+            gap: 6px;
         }
 
         .message.success {
             background: rgba(34,197,94,0.15);
-            color: var(--success);
+            color: #22c55e;
             border: 1px solid rgba(34,197,94,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-
-        .message.success::before {
-            content: '✓';
-            font-size: 16px;
-            font-weight: bold;
+            gap: 6px;
         }
 
         .message.info {
-            background: rgba(99,102,241,0.15);
+            background: rgba(236,72,153,0.15);
             color: var(--accent);
-            border: 1px solid rgba(99,102,241,0.3);
+            border: 1px solid rgba(236,72,153,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .message.info::before {
-            content: 'ℹ';
-            font-size: 16px;
+        .message i {
+            width: 14px;
+            height: 14px;
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* ⏳ LOADING */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           ⏳ LOADING
+           ═══════════════════════════════════════════════════════════ */
         
         .spinner {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border: 2px solid rgba(255,255,255,0.3);
             border-top-color: white;
             border-radius: 50%;
@@ -460,90 +601,71 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 📱 RESPONSIVE */
-        /* ═══════════════════════════════════════════════════════════ */
+        /* ═══════════════════════════════════════════════════════════
+           📱 RESPONSIVE
+           ═══════════════════════════════════════════════════════════ */
         
         @media (max-width: 480px) {
             .login-card {
                 max-width: 90%;
-                padding: 32px 24px;
+                padding: 28px 20px;
             }
 
-            .logo h1 {
-                font-size: 28px;
+            .logo-text {
+                font-size: 36px;
             }
 
-            .logo-icon {
-                width: 56px;
-                height: 56px;
-                font-size: 28px;
+            .orbit-container {
+                width: 100vw;
+                height: 100vh;
             }
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🔗 FOOTER LINK */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .footer-link {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 12px;
-            color: var(--text-dim);
-        }
-
-        .footer-link a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .footer-link a:hover {
-            color: var(--text-bright);
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 🎭 PASSWORD TOGGLE */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .input-wrapper {
-            position: relative;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            font-size: 16px;
-            transition: color 0.2s;
-            padding: 4px;
-        }
-
-        .password-toggle:hover {
-            color: var(--text-bright);
         }
     </style>
 </head>
 <body>
 
-    <!-- Stars -->
-    <div id="stars"></div>
+    <!-- 🪟 Titlebar (فقط Electron) -->
+    <div class="titlebar" id="titlebar">
+        <div class="titlebar-title">ORB</div>
+        <div class="window-controls">
+            <button class="window-btn" id="minimizeBtn" title="Minimize">
+                <i data-lucide="minus"></i>
+            </button>
+            <button class="window-btn" id="maximizeBtn" title="Maximize">
+                <i data-lucide="square"></i>
+            </button>
+            <button class="window-btn close" id="closeBtn" title="Close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+    </div>
 
-    <!-- Cursor Glow -->
-    <div id="cursor-glow"></div>
+    <!-- 🌌 Cosmos Background -->
+    <div class="cosmos">
+        <div class="stars" id="stars"></div>
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="film-grain"></div>
+    </div>
 
-    <!-- Login Card -->
-    <div class="login-card">
+    <!-- 🌍 Orbit Animation -->
+    <div class="orbit-container">
+        <div class="orbit orbit-1">
+            <div class="planet"></div>
+        </div>
+        <div class="orbit orbit-2">
+            <div class="planet"></div>
+        </div>
+        <div class="orbit orbit-3">
+            <div class="planet"></div>
+        </div>
+    </div>
+
+    <!-- 🪟 Login Card -->
+    <div class="login-card glass" id="loginCard">
         <div class="logo">
-            <div class="logo-icon">🌌</div>
-            <h1>NEXUS</h1>
-            <p>Access Required</p>
+            <div class="logo-text">ORB</div>
+            <div class="logo-subtitle">Access Required</div>
         </div>
 
         <div class="tabs">
@@ -557,13 +679,13 @@
         <div id="loginForm" class="form-view active">
             <form onsubmit="handleLogin(event)">
                 <div class="input-group">
-                    <label>Username</label>
+                    <label>Email</label>
                     <input 
-                        type="text" 
-                        id="loginUser" 
+                        type="email" 
+                        id="loginEmail" 
                         class="input-field" 
-                        placeholder="Enter username" 
-                        autocomplete="username"
+                        placeholder="your@email.com" 
+                        autocomplete="email"
                         required
                     >
                 </div>
@@ -579,12 +701,12 @@
                             required
                         >
                         <button type="button" class="password-toggle" onclick="togglePassword('loginPass', this)">
-                            👁️
+                            <i data-lucide="eye"></i>
                         </button>
                     </div>
                 </div>
                 <button type="submit" id="loginBtn" class="btn">
-                    <span>Enter NEXUS</span>
+                    <span>Enter ORB</span>
                     <div class="spinner"></div>
                 </button>
             </form>
@@ -630,7 +752,7 @@
                             required
                         >
                         <button type="button" class="password-toggle" onclick="togglePassword('regPass', this)">
-                            👁️
+                            <i data-lucide="eye"></i>
                         </button>
                     </div>
                 </div>
@@ -640,10 +762,6 @@
                 </button>
             </form>
         </div>
-
-        <div class="footer-link">
-            <a href="https://github.com/yourusername/nexus" target="_blank">About NEXUS</a>
-        </div>
     </div>
 
     <script>
@@ -652,6 +770,37 @@
         // ═══════════════════════════════════════════════════════════
 
         const API_URL = 'https://callme.f5f102.site/api';
+
+        // ═══════════════════════════════════════════════════════════
+        // 🔍 DETECT ENVIRONMENT
+        // ═══════════════════════════════════════════════════════════
+
+        const isElectron = typeof window.electron !== 'undefined';
+        
+        if (isElectron) {
+            console.log('🖥️ Running in Electron');
+            document.getElementById('titlebar').style.display = 'flex';
+            
+            document.getElementById('minimizeBtn').addEventListener('click', () => {
+                window.electron.window.minimize();
+            });
+            
+            document.getElementById('maximizeBtn').addEventListener('click', () => {
+                window.electron.window.maximize();
+            });
+            
+            document.getElementById('closeBtn').addEventListener('click', () => {
+                window.electron.window.close();
+            });
+        } else {
+            console.log('🌐 Running in Browser');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎨 INITIALIZE LUCIDE ICONS
+        // ═══════════════════════════════════════════════════════════
+
+        lucide.createIcons();
 
         // ═══════════════════════════════════════════════════════════
         // 🌟 STARS ANIMATION
@@ -675,42 +824,34 @@
         createStars();
 
         // ═══════════════════════════════════════════════════════════
-        // 🎯 CURSOR GLOW
+        // 🖱️ MOUSE TRACKING GLOW
         // ═══════════════════════════════════════════════════════════
 
-        const cursor = document.getElementById('cursor-glow');
-        let mouseX = 0, mouseY = 0;
-        let cursorX = 0, cursorY = 0;
+        const loginCard = document.getElementById('loginCard');
 
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+        loginCard.addEventListener('mousemove', (e) => {
+            const rect = loginCard.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            loginCard.style.setProperty('--mouse-x', x + '%');
+            loginCard.style.setProperty('--mouse-y', y + '%');
+            loginCard.classList.add('glass-active');
         });
 
-        function animateCursor() {
-            cursorX += (mouseX - cursorX) * 0.1;
-            cursorY += (mouseY - cursorY) * 0.1;
-            cursor.style.left = cursorX + 'px';
-            cursor.style.top = cursorY + 'px';
-            requestAnimationFrame(animateCursor);
-        }
-
-        animateCursor();
+        loginCard.addEventListener('mouseleave', () => {
+            loginCard.classList.remove('glass-active');
+        });
 
         // ═══════════════════════════════════════════════════════════
         // 🔄 TAB SWITCHING
         // ═══════════════════════════════════════════════════════════
 
         function switchTab(mode) {
-            // Update tab buttons
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-
-            // Switch forms
             document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
             document.getElementById(mode + 'Form').classList.add('active');
-            
-            // Clear message
             hideMessage();
         }
 
@@ -720,8 +861,20 @@
 
         function showMessage(type, text) {
             const box = document.getElementById('messageBox');
-            box.textContent = text;
+            box.innerHTML = '';
+            
+            const icon = document.createElement('i');
+            if (type === 'error') icon.setAttribute('data-lucide', 'alert-circle');
+            if (type === 'success') icon.setAttribute('data-lucide', 'check-circle');
+            if (type === 'info') icon.setAttribute('data-lucide', 'info');
+            
+            const textNode = document.createTextNode(text);
+            
+            box.appendChild(icon);
+            box.appendChild(textNode);
             box.className = `message ${type}`;
+            
+            lucide.createIcons();
         }
 
         function hideMessage() {
@@ -736,13 +889,17 @@
 
         function togglePassword(inputId, button) {
             const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
             if (input.type === 'password') {
                 input.type = 'text';
-                button.textContent = '🙈';
+                icon.setAttribute('data-lucide', 'eye-off');
             } else {
                 input.type = 'password';
-                button.textContent = '👁️';
+                icon.setAttribute('data-lucide', 'eye');
             }
+            
+            lucide.createIcons();
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -753,11 +910,16 @@
             e.preventDefault();
             
             const btn = document.getElementById('loginBtn');
-            const username = document.getElementById('loginUser').value.trim();
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPass').value;
 
-            if (!username || !password) {
+            if (!email || !password) {
                 showMessage('error', 'Please fill all fields');
+                return;
+            }
+
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                showMessage('error', 'Please enter a valid email');
                 return;
             }
 
@@ -766,12 +928,15 @@
             hideMessage();
             
             try {
-                console.log('🔐 Attempting login...');
+                console.log('🔐 Attempting login...', { email });
                 
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await res.json();
@@ -779,19 +944,23 @@
                 console.log('📥 Login response:', res.status, data);
 
                 if (!res.ok) {
-                    throw new Error(data.error || 'Login failed');
+                    throw new Error(data.error || data.message || 'Login failed');
                 }
 
-                // ✅ Store tokens
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
-                localStorage.setItem('user', JSON.stringify(data.user));
+                if (data.accessToken) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                }
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
 
-                console.log('✅ Login successful:', data.user.username);
+                console.log('✅ Login successful:', data.user?.username || data.user?.email);
 
-                showMessage('success', '✨ Access Granted! Redirecting...');
+                showMessage('success', '✨ Access Granted!');
                 
-                // Redirect after short delay
                 setTimeout(() => {
                     window.location.href = 'app.html';
                 }, 1000);
@@ -816,7 +985,6 @@
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPass').value;
 
-            // Validation
             if (!username || !email || !password) {
                 showMessage('error', 'Please fill all fields');
                 return;
@@ -842,11 +1010,14 @@
             hideMessage();
 
             try {
-                console.log('📝 Attempting registration...');
+                console.log('📝 Attempting registration...', { username, email });
                 
                 const res = await fetch(`${API_URL}/auth/register`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({ username, email, password })
                 });
 
@@ -855,19 +1026,23 @@
                 console.log('📥 Register response:', res.status, data);
 
                 if (!res.ok) {
-                    throw new Error(data.error || 'Registration failed');
+                    throw new Error(data.error || data.message || 'Registration failed');
                 }
 
-                // ✅ Store tokens
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
-                localStorage.setItem('user', JSON.stringify(data.user));
+                if (data.accessToken) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                }
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
 
-                console.log('✅ Registration successful:', data.user.username);
+                console.log('✅ Registration successful:', data.user?.username || username);
 
-                showMessage('success', '🎉 Account Created! Redirecting...');
+                showMessage('success', '🎉 Account Created!');
                 
-                // Redirect after short delay
                 setTimeout(() => {
                     window.location.href = 'app.html';
                 }, 1200);
@@ -881,37 +1056,38 @@
         }
 
         // ═══════════════════════════════════════════════════════════
-        // 🔍 AUTO-REDIRECT IF ALREADY LOGGED IN
+        // 🔍 AUTO-REDIRECT IF LOGGED IN
         // ═══════════════════════════════════════════════════════════
 
         async function checkExistingSession() {
             const accessToken = localStorage.getItem('accessToken');
             
             if (!accessToken) {
-                console.log('ℹ️ No existing session found');
+                console.log('ℹ️ No existing session');
                 return;
             }
 
-            console.log('🔍 Checking existing session...');
+            console.log('🔍 Checking session...');
             showMessage('info', 'Checking session...');
 
             try {
                 const res = await fetch(`${API_URL}/users/me`, {
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json'
                     }
                 });
 
                 if (res.ok) {
                     const user = await res.json();
-                    console.log('✅ Valid session found for:', user.username);
-                    showMessage('success', 'Session found! Redirecting...');
+                    console.log('✅ Valid session:', user.username);
+                    showMessage('success', 'Session found!');
                     
                     setTimeout(() => {
                         window.location.href = 'app.html';
                     }, 800);
                 } else {
-                    console.log('⚠️ Session expired, clearing...');
+                    console.log('⚠️ Session expired');
                     localStorage.clear();
                     hideMessage();
                 }
@@ -922,41 +1098,11 @@
             }
         }
 
-        // Check session on page load
         checkExistingSession();
 
-        // ═══════════════════════════════════════════════════════════
-        // ⌨️ KEYBOARD SHORTCUTS
-        // ═══════════════════════════════════════════════════════════
-
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + K to switch tab
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                const currentTab = document.querySelector('.tab.active');
-                const isLogin = currentTab.textContent.includes('Login');
-                const tabs = document.querySelectorAll('.tab');
-                tabs[isLogin ? 1 : 0].click();
-            }
-        });
-
-        // ═══════════════════════════════════════════════════════════
-        // 🎨 FORM ANIMATION ON FOCUS
-        // ═══════════════════════════════════════════════════════════
-
-        document.querySelectorAll('.input-field').forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.style.transform = 'scale(1.02)';
-                input.parentElement.style.transition = 'transform 0.2s';
-            });
-            
-            input.addEventListener('blur', () => {
-                input.parentElement.style.transform = 'scale(1)';
-            });
-        });
-
-        console.log('🌌 NEXUS Login Ready');
+        console.log('🌌 ORB Login Ready');
         console.log('🔗 API:', API_URL);
+        console.log('🖥️ Electron:', isElectron);
     </script>
 </body>
 </html>
